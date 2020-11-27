@@ -49,7 +49,7 @@ const REMOVE_CART_ITEM_USER = 'remove_cart_item_user';
 const ON_SUCCESS_BUY_USER = 'on_success_buy_user';
 const LOAD_PRODUCTS = "load_products"
 const USER_SERVER = '/api/users';
-const PRODUCT_SERVER = '/api/product';
+const PRODUCT_SERVER = '/api/film';
 const RMRF_FROM_CART = "RMRF_FROM_CART"
 const RMRF_ALL_FROM_CART = "RMRF_ALL_FROM_CART"
 const DECRISE_FROM_CART = "DECRISE_ALL_FROM_CART"
@@ -408,22 +408,6 @@ function NavBar(props) {
 }
 
 </div>
-
-
-
-<div className="main-bread-crumbs">
-      <div className="bread-crumbs">
-      <Switch>
-        <Route exact path="/" component={() => <><a href="/">Store</a></>} />
-        <Route exact path="/upload" component={() => <><a href="/">Store</a> <i className="fa fa-angle-right"></i> <a>Upload</a></>} />
-        <Route exact path="/product/:productId" component={() => <><a href="/">Store</a> <i className="fa fa-angle-right"></i> <a >Product</a></>} />
-        <Route exact path="/cart" component={() => <><a href="/">Store</a> <i className="fa fa-angle-right"></i> <a >Cart</a></>} />
-        <Route exact path="/history" component={() => <><a href="/">Store</a> <i className="fa fa-angle-right"></i> <a >History</a></>} />
-        <Route exact path="/settings" component={() => <><a href="/">Store</a> <i className="fa fa-angle-right"></i> <a >Settings</a></>} />
-
-      </Switch> 
-      </div>
-      </div>
 </>
   )
 }
@@ -706,16 +690,10 @@ function LoginPage(props) {
     </Formik>)
 }
 
-const TypesOfWeapon = [
-  { weapon: 0, value: "Pistol" },
-  { weapon: 1, value: "Rifle" },
-  { weapon: 2, value: "Assault rifle" },
-  { weapon: 3, value: "Submachine gun" },
-  { weapon: 4, value: "Armor"},
-  { weapon: 5, value: "Ammunition"},
-  { weapon: 6, value: "Supplies"},
-  { weapon: 7, value: "Aim"},
-  { weapon: 8, value: "Cold weapon"},
+const TypesOfFilm = [
+  {  format: "VHS" },
+  {  format: "DVD" },
+  { format: "Blu-Ray" },
 ]
 const SortBye = [
   { sby: 0, value: "Default" },
@@ -724,191 +702,195 @@ const SortBye = [
 ]
 function LandingPage(props) {
 
-  const [Products, setProducts] = useState([]);
-  const [Skip, setSkip] = useState(0)
-  const [Page, setPage] = useState(1)
+//   const [Products, setProducts] = useState([]);
+//   const [Skip, setSkip] = useState(0)
+//   const [Page, setPage] = useState(1)
 
-  const [Limit, setLimit] = useState(10)
-  const [PostSize, setPostSize] = useState()
-  const [SearchTerms, setSearchTerms] = useState("")
-  const [MaxPrice, setMaxPrice] = useState(0)
-  const [MinPrice, setMinPrice] = useState(0)
-  const [SearchMaxPrice, setSearchMaxPrice] = useState(0)
-  const [SortBy, setSortBy] = useState('Default')
+//   const [Limit, setLimit] = useState(10)
+//   const [PostSize, setPostSize] = useState()
+//   const [SearchTerms, setSearchTerms] = useState("")
+//   const [MaxPrice, setMaxPrice] = useState(0)
+//   const [MinPrice, setMinPrice] = useState(0)
+//   const [SearchMaxPrice, setSearchMaxPrice] = useState(0)
+//   const [SortBy, setSortBy] = useState('Default')
 
-  let array_for_check = [];
-  for(let gg = 0 ; gg < TypesOfWeapon.length; gg++)
-    array_for_check.push(false)
-  const [WhatWeapon, setWhatWeapon] = useState(array_for_check)
-  const dispatch = useDispatch()
+//   let array_for_check = [];
+//   for(let gg = 0 ; gg < TypesOfFilm.length; gg++)
+//     array_for_check.push(false)
+//   const [WhatWeapon, setWhatWeapon] = useState(array_for_check)
+//   const dispatch = useDispatch()
   
-  useEffect(() => {
+//   useEffect(() => {
 
-    const variables = {
-        skip: Skip,
-        limit: Limit,
-    }
-    getProducts(variables)
-}, [])
-
-
-const [lastScrollTop, setLastScrollTop] = useState(0);
-  const [bodyOffset, setBodyOffset] = useState(
-    document.body.getBoundingClientRect()
-  );
-  const [scrollY, setScrollY] = useState(bodyOffset.top);
-  const [scrollX, setScrollX] = useState(bodyOffset.left);
-  const [scrollDirection, setScrollDirection] = useState();
-
-  const listener = e => {
-    setBodyOffset(document.body.getBoundingClientRect());
-    setScrollY(-bodyOffset.top);
-    setScrollX(bodyOffset.left);
-    setScrollDirection(lastScrollTop > -bodyOffset.top ? "down" : "up");
-    setLastScrollTop(-bodyOffset.top);
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", listener);
-    return () => {
-      window.removeEventListener("scroll", listener);
-    };
-  });
+//     const variables = {
+//         skip: Skip,
+//         limit: Limit,
+//     }
+//     getProducts(variables)
+// }, [])
 
 
+// const [lastScrollTop, setLastScrollTop] = useState(0);
+//   const [bodyOffset, setBodyOffset] = useState(
+//     document.body.getBoundingClientRect()
+//   );
+//   const [scrollY, setScrollY] = useState(bodyOffset.top);
+//   const [scrollX, setScrollX] = useState(bodyOffset.left);
+//   const [scrollDirection, setScrollDirection] = useState();
 
+//   const listener = e => {
+//     setBodyOffset(document.body.getBoundingClientRect());
+//     setScrollY(-bodyOffset.top);
+//     setScrollX(bodyOffset.left);
+//     setScrollDirection(lastScrollTop > -bodyOffset.top ? "down" : "up");
+//     setLastScrollTop(-bodyOffset.top);
+//   };
+
+//   useEffect(() => {
+//     window.addEventListener("scroll", listener);
+//     return () => {
+//       window.removeEventListener("scroll", listener);
+//     };
+//   });
+
+
+useEffect(() => {
+
+      getProducts()
+  }, [])
 
 const getProducts = (variables) => {
   
-  axios.post('/api/product/getProducts', variables)
+  axios.post(`${PRODUCT_SERVER}/getFilms`)
       .then(response => {
-          if (response.data.success) {
-              if (variables.loadMore) {
-                  setProducts([...Products, ...response.data.products])
-              } else {
-                  setProducts(response.data.products)
+          console.log(response.data)  
+        // if (response.data.success) {
+          //     if (variables.loadMore) {
+          //         setProducts([...Products, ...response.data.products])
+          //     } else {
+          //         setProducts(response.data.products)
 
-              }
-              setPostSize(response.data.postSize)
-              if(response.data.maxPrice && response.data.maxPrice[0] ){
-                setMaxPrice(response.data.maxPrice[0].price)
-              }
-          } else {
-              alert('Failed to fectch product datas')
-          }
+          //     }
+          //     setPostSize(response.data.postSize)
+          //     if(response.data.maxPrice && response.data.maxPrice[0] ){
+          //       setMaxPrice(response.data.maxPrice[0].price)
+          //     }
+          // } else {
+          //     alert('Failed to fectch product datas')
+          // }
       })
 }
-const onLoadMore = () => {
-  let skip = Skip + Limit;
+// const onLoadMore = () => {
+//   let skip = Skip + Limit;
 
-  const variables = {
-    skip: skip,
-    weapon: WhatWeapon,
-    SortBy: SortBy,
-    min_price: MinPrice,
-    max_price: SearchMaxPrice,
-    loadMore: true,
-    limit: Limit,
-    searchTerm: SearchTerms
-  }
-  getProducts(variables)
-  setSkip(skip)
-}
+//   const variables = {
+//     skip: skip,
+//     weapon: WhatWeapon,
+//     SortBy: SortBy,
+//     min_price: MinPrice,
+//     max_price: SearchMaxPrice,
+//     loadMore: true,
+//     limit: Limit,
+//     searchTerm: SearchTerms
+//   }
+//   getProducts(variables)
+//   setSkip(skip)
+// }
 
 
-const updateSearchTerms = (newSearchTerm) => {
-  const variables = {
-      skip: 0,
-      weapon: WhatWeapon,
-      SortBy: SortBy,
-      min_price: MinPrice,
-      max_price: SearchMaxPrice,
-      limit: Limit,
-      searchTerm: newSearchTerm
-  }
+// const updateSearchTerms = (newSearchTerm) => {
+//   const variables = {
+//       skip: 0,
+//       weapon: WhatWeapon,
+//       SortBy: SortBy,
+//       min_price: MinPrice,
+//       max_price: SearchMaxPrice,
+//       limit: Limit,
+//       searchTerm: newSearchTerm
+//   }
 
-  setSkip(0)
-  setSearchTerms(newSearchTerm)
-  getProducts(variables)
-}
+//   setSkip(0)
+//   setSearchTerms(newSearchTerm)
+//   getProducts(variables)
+// }
 
-const updateMinCost = (e) => {
-if(allow_in1sec || e.target.value == 0) {
-  allow_in1sec = 0;
-  const variables = {
-    skip: 0,
-    weapon: WhatWeapon,
-    limit: Limit,
-    SortBy: SortBy,
-    min_price: e.target.value,
-    max_price: SearchMaxPrice,
-    searchTerm: SearchTerms
-}
-setSkip(0)
-setMinPrice(e.target.value)
-getProducts(variables)
-}
+// const updateMinCost = (e) => {
+// if(allow_in1sec || e.target.value == 0) {
+//   allow_in1sec = 0;
+//   const variables = {
+//     skip: 0,
+//     weapon: WhatWeapon,
+//     limit: Limit,
+//     SortBy: SortBy,
+//     min_price: e.target.value,
+//     max_price: SearchMaxPrice,
+//     searchTerm: SearchTerms
+// }
+// setSkip(0)
+// setMinPrice(e.target.value)
+// getProducts(variables)
+// }
 
-}
+// }
 
-const updateMaxCost = (e) => {
-if(allow_in1sec || e.target.value == 0) {
-  allow_in1sec = 0;
-  const variables = {
-    skip: 0,
-    weapon: WhatWeapon,
-    SortBy: SortBy,
-    limit: Limit,
-    min_price: MinPrice,
-    max_price: e.target.value,
-    searchTerm: SearchTerms
-}
-setSkip(0)
-setSearchMaxPrice(e.target.value)
-getProducts(variables)
-}
+// const updateMaxCost = (e) => {
+// if(allow_in1sec || e.target.value == 0) {
+//   allow_in1sec = 0;
+//   const variables = {
+//     skip: 0,
+//     weapon: WhatWeapon,
+//     SortBy: SortBy,
+//     limit: Limit,
+//     min_price: MinPrice,
+//     max_price: e.target.value,
+//     searchTerm: SearchTerms
+// }
+// setSkip(0)
+// setSearchMaxPrice(e.target.value)
+// getProducts(variables)
+// }
 
-}
+// }
 
-const set_checked_t = (w) => {
+// const set_checked_t = (w) => {
   
-  let arr = WhatWeapon;
-  arr[w] = !arr[w];
-  setWhatWeapon(arr)
+//   let arr = WhatWeapon;
+//   arr[w] = !arr[w];
+//   setWhatWeapon(arr)
   
-  const variables = {
-    skip: 0,
-    weapon: WhatWeapon,
-    SortBy: SortBy,
-    limit: Limit,
-    min_price: MinPrice,
-    max_price: SearchMaxPrice,
-    searchTerm: SearchTerms
-}
-setSkip(0)
+//   const variables = {
+//     skip: 0,
+//     weapon: WhatWeapon,
+//     SortBy: SortBy,
+//     limit: Limit,
+//     min_price: MinPrice,
+//     max_price: SearchMaxPrice,
+//     searchTerm: SearchTerms
+// }
+// setSkip(0)
 
-getProducts(variables)
-}
+// getProducts(variables)
+// }
 
-const onSortByChange = (event) => {
-  const variables = {
-    skip: 0,
-    weapon: WhatWeapon,
-    SortBy: event.currentTarget.value,
-    limit: Limit,
-    min_price: MinPrice,
-    max_price: SearchMaxPrice,
-    searchTerm: SearchTerms
-}
-setSortBy(event.currentTarget.value)
-setSkip(0)
+// const onSortByChange = (event) => {
+//   const variables = {
+//     skip: 0,
+//     weapon: WhatWeapon,
+//     SortBy: event.currentTarget.value,
+//     limit: Limit,
+//     min_price: MinPrice,
+//     max_price: SearchMaxPrice,
+//     searchTerm: SearchTerms
+// }
+// setSortBy(event.currentTarget.value)
+// setSkip(0)
 
-getProducts(variables)
+// getProducts(variables)
 
-}
+// }
   return(
     <div className="main-page-store-shell">
-    <div className="main-page-store">
+    {/* <div className="main-page-store">
       <div className="main-page-filters">
         <div className="main-page-search">
           <input value={SearchTerms} placeholder="Search by name" className="main-page-term-search" onChange={(e) => updateSearchTerms(e.target.value)} />
@@ -926,7 +908,7 @@ getProducts(variables)
         </select>
         </div>
         <ul className="main-page-checkout">
-        {TypesOfWeapon.map((weapon, index) => <li key={weapon.value}>
+        {TypesOfFilm.map((weapon, index) => <li key={weapon.value}>
           <input id={weapon.value+weapon.weapon} type="checkbox" onChange={() => set_checked_t(index) } checked={WhatWeapon[index]}/>
             <label htmlFor={weapon.value+weapon.weapon} className="checkbox">{weapon.value}</label>  
           </li>)}
@@ -985,7 +967,7 @@ getProducts(variables)
         </>
         }
       </div>
-    </div>
+    </div> */}
     </div>
   )
 }
@@ -995,10 +977,9 @@ function FileUpload(props) {
   const [MainObj, setMainObj] = useState([])
   const [ErrorFile, setErrorFile] = useState("")
   const [SuccesFile, setSuccesFile] = useState("")
+  const [SuccesUpload, setSuccesUpload] = useState("")
 
   useEffect(() => {
-
-    // console.log(InnerFile)
     let textstart = InnerFile.split("\n")
     let arrwithstrs = textstart.filter(str => {
       if (str.trim().length)
@@ -1056,11 +1037,14 @@ function FileUpload(props) {
       }
       if (x % 4 === 3){
         if(arrwithstrs[x].indexOf("Stars:") === 0) {
-            var stararr = arrwithstrs[x].substr("Stars:".length,arrwithstrs[x].length).split(',');
+            var stararr = arrwithstrs[x].trim().substr("Stars:".length,arrwithstrs[x].length).split(',');
             
             for(let a = 0; a < stararr.length; a++)
                 stararr[a] = stararr[a].trim();
-            if(arrwithstrs[x].substr("Stars:",arrwithstrs[x].length).trim().length > 0)
+            if (stararr.indexOf("") != -1)
+              error = "Stars are not set somewhere";
+
+            if(arrwithstrs[x].trim().substr("Stars:",arrwithstrs[x].length).trim().length > 0)
                 ObjectForSend.stars = stararr;
             else 
                  error = "Stars are not set somewhere";
@@ -1068,8 +1052,10 @@ function FileUpload(props) {
         else 
         error = "Stars are not set somewhere";
     
-    if (Object.keys(ObjectForSend).length === 4)
-        sendObj.push(ObjectForSend);
+    if (Object.keys(ObjectForSend).length === 4){
+      ObjectForSend.writer = props.userId
+      sendObj.push(ObjectForSend);
+    }
     if(error === "" && x + 1 === arrwithstrs.length ) {
         // axios.post('http://localhost:3001/adding/',sendObj)
         // .then(res => this.setState({successFile: res.data.toString()}))
@@ -1098,7 +1084,10 @@ function FileUpload(props) {
     reader.readAsText(files[0]);
   }
 
-
+const uploadFile = () => {
+    axios.post(`${PRODUCT_SERVER}/upload/films`,MainObj)
+    .then(res => setSuccesUpload (res.data.toString()))
+}
   return (
     <>
       <div className="image-uploader" >
@@ -1129,108 +1118,122 @@ function FileUpload(props) {
                   </div>
               )}
           </Dropzone>
-                
+          {SuccesFile &&
+                <button onClick={() => uploadFile()}>
+asd
+                </button>
+}
       </div>
      
     </>
   )
 }
 function UploadProductPage(props) {
-    const [TitleValue, setTitleValue] = useState("")
-    const [DescriptionValue, setDescriptionValue] = useState("")
-    const [PriceValue, setPriceValue] = useState(0)
-    const [WeaponValue, setWeaponValue] = useState(1)
-    const [Images, setImages] = useState([])
 
-    const onTitleChange = (event) => {
-      setTitleValue(event.currentTarget.value)
-    } 
-    const onDescriptionChange = (event) => {
-      setDescriptionValue(event.currentTarget.value)
-    }
-    const onPriceChange = (event) => {
-      setPriceValue(event.currentTarget.value)
-    }
-    const onWeaponSelectChange = (event) => {
-      setWeaponValue(event.currentTarget.value)
-    }
-    const updateImages = (newImages) => {
-    setImages(newImages)
-    }
+    const [Title, setTitle] = useState("")
+    const [Year, setYear] = useState(0);
+    const [Format, setFormat] = useState("VHS")
+    const [Stars, setStars] = useState([])
 
     const onSubmit = (event) => {
-      event.preventDefault();
+      // event.preventDefault();
+      console.log(Title, Year, Format, Stars, (new Date()).getFullYear())
 
-
-      if (!TitleValue || !DescriptionValue || !PriceValue ||
-          !WeaponValue || !Images) {
+      if (!Title || !Year  || !Format ||
+          Stars.length == 0 ) {
           return alert('Fill all the fields first!')
       }
-
+      if((new Date()).getFullYear() >= Year&& Year <= 1850){
+        return alert('Year isn`t correct')
+      }
       const variables = {
           writer: props.redux.userData._id,
-          title: TitleValue,
-          description: DescriptionValue,
-          price: PriceValue,
-          images: Images,
-          weapon: WeaponValue
+          title: Title,
+          year: Year,
+          format: Format,
+          stars: Stars
       }
-
-
-      axios.post('/api/product/uploadFilm', variables)
+      axios.post(`${PRODUCT_SERVER}/upload/film`,variables)
           .then(response => {
               if (response.data.success) {
                   alert('Product Successfully Uploaded')
-                  props.history.push('/')
+                  // props.history.push('/')
               } else {
                   alert('Failed to upload Product')
               }
           })
 
+
   }
+  const [StarInput, setStarInput] = useState("")
+  const [Important, setImportant] =useState(false)
+  const addStarToArr =() => {
+    if(StarInput.trim().length> 0){
+    setStars([...Stars,StarInput])
+      setStarInput("")
+
+  }
+  setStarInput("")
+
+  }
+  const deleteStar = (star) => {
+    let newStars = Stars
+    newStars.splice(star, 1);
+    setImportant(!Important)
+    return newStars
+  }
+
+
 
   return (
     <div className="upload-product">
       <h2 className="upload-logo">Uploading</h2>
-      <Form className="upload-form" onSubmit={onSubmit} >
+      <FileUpload userId={props?.redux?.userData?._id} />
 
-                {/* DropZone */}
-                <FileUpload refreshFunction={updateImages} />
+      <Form className="upload-form" >
+
                 <div className="upload-input">
                 <label>Title</label>
                 <Input
-                    onChange={onTitleChange}
-                    value={TitleValue}
+                    onChange={(e) => setTitle(e.target.value)}
+                    value={Title}
                 />
                 </div>
                 <div className="upload-input">
 
-                <label>Description</label>
-                <TextArea
-                    onChange={onDescriptionChange}
-                    value={DescriptionValue}
-                />
-                </div>
-                <div className="upload-input">
-
-                <label>Price($)</label>
+                <label>Year</label>
                 <Input
-                    onChange={onPriceChange}
-                    value={PriceValue}
+                    onChange={(e) => setYear(e.target.value)}
+                    value={Year == 0 ? "" : Year}
                     type="number"
                 />
                 </div>
                 <div className="upload-input">
 
-                <label>Type</label>
-                <select onChange={onWeaponSelectChange} value={WeaponValue}>
-                    {TypesOfWeapon.map(item => (
-                        <option key={item.weapon} value={item.weapon}>{item.value} </option>
+                <label>Format</label>
+                <select onChange={(e) => setFormat(e.target.value)} value={Format}>
+                    {TypesOfFilm.map(item => (
+                        <option key={item.format} value={item.format}>{item.format} </option>
                     ))}
                 </select>
                 </div>
-                <Button className="submit-upload-btn"
-                    onClick={onSubmit}
+                <div className="upload-input">
+
+                <label>Stars</label>
+                      <Input 
+                      onChange={(e) => setStarInput(e.target.value)}
+                      value={StarInput}
+                      />
+                </div>
+                <button onClick={() => addStarToArr()}>add</button>
+                    <div >
+                      {Stars.map((star, index) => <div key={index+Math.random()}>
+                      <div>{star}</div>
+                      <button onClick={() => {setStars( deleteStar(index)) }}>X</button>
+                      </div>)}
+                    </div>
+                <Button type="submit" className="submit-upload-btn"
+                    onClick={() => onSubmit()}
                 >
                     Submit
                 </Button>
@@ -1370,7 +1373,7 @@ function DetailProductPage(props){
          </div>
       </div>
       <div className="detail-page-description mb-2">{Product.description}</div>
-         <div className="detail-page-type mb-2">Type: {TypesOfWeapon.map((from_client) =>
+         <div className="detail-page-type mb-2">Type: {TypesOfFilm.map((from_client) =>
             from_client.weapon === Product.weapon ? from_client.value : null
          )}</div>
          <div className="detail-page-type mb-2">Seller: {Product.writer.email}</div>
@@ -1427,116 +1430,7 @@ export function onSuccessBuy(data) {
   }
 }
 
-function CartPage(props) {
-  const dispatch = useDispatch();
-  const [Total, setTotal] = useState(0)
-  const [ShowTotal, setShowTotal] = useState(false)
-  const [ShowSuccess, setShowSuccess] = useState(false)
-  
-  let redux = useSelector(state => state.redux);
-  
-  const calculateTotal = () => {
-  let total = 0;
 
-  redux.userData && redux.userData.cart && redux.userData.cart.map(cartItem => 
-    total += parseInt(cartItem.productBody.price,10) * cartItem.quantity
-
-  )
-  setTotal(total)
-  setShowTotal(true)
-}
-
-
-const transactionSuccess = (data) => {
-  dispatch(onSuccessBuy({
-      cartDetail: redux.userData.cart,
-      paymentData: data
-  }))
-      .then(response => {
-          if (response.payload.success) {
-              setShowSuccess(true)
-              setShowTotal(false)
-          }
-      })
-}
-
-
-useEffect(() => {
-
-  calculateTotal()
-
-}, [redux])
-const transactionError = () => {
-  console.log('Paypal error')
-}
-
-const transactionCanceled = () => {
-  console.log('Transaction canceled')
-}
-
-return (
-
-  <div className="cart">
-    <div>Cart</div>
-    <div className="cartTable">
-      {redux?.userData?.cart?.map((cartItem, index) => 
-        <div className="cartTableRow" key={index}>
-          <div id={"carouselProductControls"+index+index} className="carousel slide carousel-fade" data-ride="carousel">
-
-          <div className="carousel-inner">
-          { cartItem.productBody.images.map((image, index) => (
-                                  <div key={index+image} className={`d-flex flex-wrap align-items-center align-content-center carousel-item ${index === 0 ? "active" : ""}`}>
-                                      <img className="d-block my-auto mx-auto carusel-product-image" 
-                                          src={(image.substring(0, 7) === 'uploads') ? `${config.MAGIC_HOST}/${image}` : `${image}`} alt="productImage" />
-                                  </div>
-                              ))}
-          { cartItem.productBody.images.length > 1 ? <>
-          <a className="carousel-control carousel-control-prev" href={"#carouselProductControls"+index+index} role="button" data-slide="prev">
-          <i className="fas fa-angle-left"></i>
-          </a>
-          <a className="carousel-control carousel-control-next" href={"#carouselProductControls"+index+index} role="button" data-slide="next">
-          <i className="fas fa-angle-right"></i>
-          </a>
-          </> : null
-          }
-          </div>
-  </div>
-        <div className="cartItemTitle">{cartItem.productBody.title}</div>
-        <div className="cartItemCostQuant"><div>{cartItem.quantity}</div><div>{cartItem.quantity * cartItem.productBody.price} $</div></div>
-        <div className="cartItemActionShell">
-        <div className="cartItemAction">
-        <div className="cart-header-block-list-add header-list-action" onClick={() => dispatch(addToCart(cartItem.id))}>+</div>
-              <div className="cart-header-block-list-decr header-list-action" onClick={() =>  dispatch(decriseFromCart(cartItem.id))}>-</div>
-              <div className="cart-header-block-list-remove header-list-action" onClick={() => dispatch(cleanCart(cartItem.id))}><i className="fa fa-trash"></i></div>  
-        </div>
-        </div>
-
-        </div>
-      )}
-    </div>
-    <div className="PayPalBtn">
-{ShowTotal && Total !== 0? 
-        <><div>Total amount: {Total} </div>
-        
-        <Paypal
-                    toPay={Total}
-                    onSuccess={transactionSuccess}
-                    transactionError={transactionError}
-                    transactionCanceled={transactionCanceled}
-                />
-        
-        </>:
-        ShowSuccess ? 
-        <div>All okey</div>:
-        <div>Cart is Empty</div>
-      }
-    </div>
-
-  </div>
-
-)
-
-}
 
 function timeConverter(UNIX_timestamp){
   var a = new Date(UNIX_timestamp * 1000);
@@ -1551,31 +1445,7 @@ function timeConverter(UNIX_timestamp){
   return time;
 }
 
-function HistoryPage(props) {
-  let redux = useSelector(state => state.redux);
-  
-  return (
-    <div className="HistoryPage">
-      <div className="historyLogo">History</div>
-      <div className="historyTable">
-      <div className="historyRow">
-          <div>ID</div>
-          <div>Name</div>
-          <div>Price</div>
-          <div>Date</div>
-          <div>Email of seller</div>
-        </div>
-      {redux?.userData?.history?.map((item, index) => <div className="historyRow" key={index+item.id+item.id}>
-          <div>{item.id}</div>
-          <div>{item.name}</div>
-          <div>{item.price} X {item.quantity} = {item.price*item.quantity} $</div>
-          <div>{(new Date(item.dateOfPurchase )).toLocaleString()}</div>
-          <div>{item.writer.email}</div>
-        </div>)}
-        </div>
-    </div>
-  )
-}
+
 
 function changePassword(dataToSubmit) {
   return  axios.post(`${USER_SERVER}/changePassword`, dataToSubmit)
@@ -1732,8 +1602,6 @@ function App(props) {
           <Route exact path="/login" component={Auth(LoginPage, false)} />
           <Route exact path="/upload" component={Auth(UploadProductPage, true)} />
           <Route exact path="/product/:productId" component={Auth(DetailProductPage, true)} />
-          <Route exact path="/cart" component={Auth(CartPage, true)} />
-          <Route exact path="/history" component={Auth(HistoryPage, true)} />
           <Route exact path="/settings" component={Auth(SettingsPage, true)} />
           <Route path='*' exact={true} component={My404Component} />
         </Switch>

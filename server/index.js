@@ -11,7 +11,7 @@ const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const async = require('async');
 const multer = require('multer');
-const productRouter = express.Router();
+const filmRouter = express.Router();
 const userRouter = express.Router();
 const Schema = mongoose.Schema;
  
@@ -150,9 +150,9 @@ let auth = (req, res, next) => {
 
 
 
-const productSchema = mongoose.Schema({
+const filmSchema = mongoose.Schema({
   writer: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: 'User'
   },
   title: {
@@ -165,7 +165,7 @@ const productSchema = mongoose.Schema({
       type: String,
       default: ""
   },
-  actors: {
+  stars: {
       type: Array,
       default: []
   }
@@ -173,7 +173,7 @@ const productSchema = mongoose.Schema({
 
 
 
-const Product = mongoose.model('Product', productSchema);
+const Film = mongoose.model('film', filmSchema);
 
     
  
@@ -208,7 +208,44 @@ app.use(cookieParser());
 // var upload = multer({ storage: storage }).single("file")
 
 
-productRouter.post("/uploadImage", auth, (req, res) => {
+filmRouter.post("/upload/films",auth,   (req, res) => {
+    for(let j = 0; j < req.body.length;j++){
+        req.body[j].writer = mongoose.Types.ObjectId(req.body[j].writer)
+    }
+    Film.collection.insert(req.body,function (err,docs){
+        if (err) {
+          console.log(err);
+          res.json(err)
+        } else {
+          res.json('films added!')
+          console.log('film added!');
+        }
+      });
+    
+//     const product = new Product(req.body)
+  
+//     product.save((err) => {
+//         if (err) return res.status(400).json({ success: false, err })
+//         return res.status(200).json({ success: true })
+//     })
+  
+  });
+  
+  filmRouter.post("/upload/film",auth,   (req, res) => {
+
+    
+        req.body.writer = mongoose.Types.ObjectId(req.body.writer)
+        
+    const film = new Film(req.body)
+    console.log(req.body)
+    film.save((err) => {
+        if (err) return res.status(400).json({ success: false, err })
+        return res.status(200).json({ success: true })
+    })
+  
+  });
+
+filmRouter.post("/uploadImage", auth, (req, res) => {
 
   upload(req, res, err => {
       if (err) {
@@ -220,18 +257,9 @@ productRouter.post("/uploadImage", auth, (req, res) => {
 });
 
 
-productRouter.post("/uploadFilm",  (req, res) => {
-  const product = new Product(req.body)
-
-  product.save((err) => {
-      if (err) return res.status(400).json({ success: false, err })
-      return res.status(200).json({ success: true })
-  })
-
-});
 
 
-// productRouter.post("/uploadWeapon/:id", async (req, res) => {
+// filmRouter.post("/uploadWeapon/:id", async (req, res) => {
 
 //     const projectId = req.body._id;
 //     const project = await Product.findById(projectId);
@@ -255,92 +283,96 @@ productRouter.post("/uploadFilm",  (req, res) => {
 
 
 
-productRouter.post("/getFilms", (req, res) => {
-    let sortBy = "_id";
-    let order =  "desc";
-    if(req.body.SortBy == 'From cheap to expensive') {
-        sortBy = 'price'
-        order = "asc"
-    } else if(req.body.SortBy == "From expensive to cheap"){
-        sortBy = 'price'
-        order = "desc"
-    } 
-    let limit = req.body.limit ? parseInt(req.body.limit) : 100;
-    let skip = parseInt(req.body.skip);
+filmRouter.post("/getFilms", (req, res) => {
+    Film.find().populate("writer").exec((err, films) => {
+                        if (err) return res.status(400).json({ success: false, err })
+                        res.status(200).json({ success: true, films})
+                    })
+    // let sortBy = "_id";
+    // let order =  "desc";
+    // if(req.body.SortBy == 'From cheap to expensive') {
+    //     sortBy = 'price'
+    //     order = "asc"
+    // } else if(req.body.SortBy == "From expensive to cheap"){
+    //     sortBy = 'price'
+    //     order = "desc"
+    // } 
+    // let limit = req.body.limit ? parseInt(req.body.limit) : 100;
+    // let skip = parseInt(req.body.skip);
 
-    let findArgs = {};
-    let term = req.body.searchTerm;
-    let low = req.body.min_price || 0;
-    let max = req.body.max_price || Infinity;
-    let find_weapon = []
-    let weapons_was = 0;
-    if(req.body.weapon)
-    for(var x = 0; x < req.body.weapon.length; x++){
-        if(req.body.weapon[x]){
-            find_weapon.push(x)
-            weapons_was = 1;
-        }
-    }
-    let weapon = [];
-    if(weapons_was) {
-        weapon = find_weapon
-        findArgs = {
-            price: {
-                $gte: low,
-                $lte: max
-            },
-            weapon: weapon
-        }
-    }
-    if(!weapons_was) {
-        weapon = find_weapon
-        findArgs = {
-            price: {
-                $gte: low,
-                $lte: max
-            }
-        }
-    }
+    // let findArgs = {};
+    // let term = req.body.searchTerm;
+    // let low = req.body.min_price || 0;
+    // let max = req.body.max_price || Infinity;
+    // let find_weapon = []
+    // let weapons_was = 0;
+    // if(req.body.weapon)
+    // for(var x = 0; x < req.body.weapon.length; x++){
+    //     if(req.body.weapon[x]){
+    //         find_weapon.push(x)
+    //         weapons_was = 1;
+    //     }
+    // }
+    // let weapon = [];
+    // if(weapons_was) {
+    //     weapon = find_weapon
+    //     findArgs = {
+    //         price: {
+    //             $gte: low,
+    //             $lte: max
+    //         },
+    //         weapon: weapon
+    //     }
+    // }
+    // if(!weapons_was) {
+    //     weapon = find_weapon
+    //     findArgs = {
+    //         price: {
+    //             $gte: low,
+    //             $lte: max
+    //         }
+    //     }
+    // }
 
 
-    let maxPrice;
-    var vsegoTovara;
-    const send_on_client = async () => {
-        if(term)
-            maxPrice = await Product.find(findArgs).find({ "title": { "$regex": term, "$options": "i" }}).sort({ price: -1 }).limit(1);
-        else
-            maxPrice = await Product.find(findArgs).sort({ price: -1 }).limit(1);
-        if(term)
-        vsegoTovara = (await Product.find(findArgs).find({ "title": { "$regex": term, "$options": "i" }})).length;
-        else
-        vsegoTovara =  (await Product.find(findArgs)).length;
+    // let maxPrice;
+    // var vsegoTovara;
+    // const send_on_client = async () => {
+    //     if(term)
+    //         maxPrice = await Product.find(findArgs).find({ "title": { "$regex": term, "$options": "i" }}).sort({ price: -1 }).limit(1);
+    //     else
+    //         maxPrice = await Product.find(findArgs).sort({ price: -1 }).limit(1);
+    //     if(term)
+    //     vsegoTovara = (await Product.find(findArgs).find({ "title": { "$regex": term, "$options": "i" }})).length;
+    //     else
+    //     vsegoTovara =  (await Product.find(findArgs)).length;
 
-        if (term) {
-            Product.find(findArgs)
-                .find({ "title": { "$regex": term, "$options": "i" }})
-                .populate("writer")
-                .sort([[sortBy, order]])
-                .skip(skip)
-                .limit(limit)
-                .exec((err, products) => {
-                    if (err){ return res.status(400).json({ success: false, err })}
-                    res.status(200).json({ success: true, products, postSize: vsegoTovara, maxPrice:maxPrice})
-                })
-        } else {
+    //     if (term) {
+    //         Product.find(findArgs)
+    //             .find({ "title": { "$regex": term, "$options": "i" }})
+    //             .populate("writer")
+    //             .sort([[sortBy, order]])
+    //             .skip(skip)
+    //             .limit(limit)
+    //             .exec((err, products) => {
+    //                 if (err){ return res.status(400).json({ success: false, err })}
+    //                 res.status(200).json({ success: true, products, postSize: vsegoTovara, maxPrice:maxPrice})
+    //             })
+    //     } else {
             
-            Product.find(findArgs)
-                .populate("writer")
-                .sort([[sortBy, order]])
-                .skip(skip)
-                .limit(limit)
-                .exec((err, products) => {
-                    if (err) return res.status(400).json({ success: false, err })
-                    res.status(200).json({ success: true, products, postSize: vsegoTovara, maxPrice:maxPrice })
-                })
-        }
+    //         Product.find(findArgs)
+    //             .populate("writer")
+    //             .sort([[sortBy, order]])
+    //             .skip(skip)
+    //             .limit(limit)
+    //             .exec((err, products) => {
+    //                 if (err) return res.status(400).json({ success: false, err })
+    //                 res.status(200).json({ success: true, products, postSize: vsegoTovara, maxPrice:maxPrice })
+    //             })
+    //     }
 
-    }
-    send_on_client()
+    // }
+    // send_on_client()
 
     
 
@@ -348,7 +380,7 @@ productRouter.post("/getFilms", (req, res) => {
 });
 
 
-productRouter.get("/film_by_id", (req, res) => {
+filmRouter.get("/film_by_id", (req, res) => {
   let type = req.query.type
   let productIds = req.query.id
 
@@ -370,7 +402,7 @@ productRouter.get("/film_by_id", (req, res) => {
       })
 });
 
-productRouter.get("/getUserProducts", (req, res) => {
+filmRouter.get("/getUserProducts", (req, res) => {
     let userId = req.query.userId
     let term = req.query.term
     
@@ -389,7 +421,7 @@ productRouter.get("/getUserProducts", (req, res) => {
   });  
 
 
-  productRouter.get("/rmrfProduct", (req, res) => {
+  filmRouter.get("/rmrfProduct", (req, res) => {
     let userId = req.query.userId
     let productId = req.query.productId
   
@@ -480,7 +512,7 @@ userRouter.get("/logout", auth, (req, res) => {
 });
 
 app.use('/api/users', userRouter);
-app.use('/api/product', productRouter);
+app.use('/api/film', filmRouter);
 
 app.use('/uploads', express.static('uploads'));
 
