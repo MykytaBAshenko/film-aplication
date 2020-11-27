@@ -1017,7 +1017,7 @@ function FileUpload(props) {
         var ObjectForSend = {};
         if(x % 4 === 0){
             if(arrwithstrs[x].indexOf('Title:') === 0){
-                if(arrwithstrs[x].length > 'Title:'.length)
+                if(arrwithstrs[x].trim().length > 'Title:'.length)
                     ObjectForSend.title = arrwithstrs[x].substr('Title:'.length,arrwithstrs[x].length).trim();
                 else
                 error =  "Title is empty somewhere";
@@ -1081,6 +1081,8 @@ function FileUpload(props) {
     else if(error){
       setErrorFile(error)
       setSuccesFile("")
+      setMainObj([])
+
     }
       }
     }
@@ -1100,7 +1102,19 @@ function FileUpload(props) {
   return (
     <>
       <div className="image-uploader" >
-          <Dropzone
+        {
+          SuccesFile &&
+        <div>
+          {SuccesFile}
+        </div>
+}
+{
+          ErrorFile &&
+        <div>
+          {ErrorFile}
+        </div>
+}
+        <Dropzone
               onDrop={onDrop}
               multiple={false}
               maxSize={800000000}
