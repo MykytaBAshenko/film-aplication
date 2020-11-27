@@ -990,45 +990,112 @@ getProducts(variables)
   )
 }
 function FileUpload(props) {
+  const [InnerFile, setInnerFile] = useState('')
+  const [ShowBtn, setShowBtn] = useState(false)
+  const [MainObj, setMainObj] = useState([])
+  const [ErrorFile, setErrorFile] = useState("")
+  const [SuccesFile, setSuccesFile] = useState("")
 
-  const [Images, setImages] = useState([])
-  const [imageInput, setImageInput] = useState('')
+  useEffect(() => {
+
+    // console.log(InnerFile)
+    let textstart = InnerFile.split("\n")
+    let arrwithstrs = textstart.filter(str => {
+      if (str.trim().length)
+          return str.trim();
+      return null;
+    });
+    // console.log(arrwithstrs)
+    let sendObj = [];
+    let error ="";
+    if(arrwithstrs.length % 4 != 0 || arrwithstrs.length == 0){
+      error = "Wrong row count";
+  console.log(arrwithstrs,arrwithstrs.length % 4 != 0,arrwithstrs.length == 0 )  
+  }
+    else
+      for (var x = 0; x < arrwithstrs.length; x++) {
+        var ObjectForSend = {};
+        if(x % 4 === 0){
+            if(arrwithstrs[x].indexOf('Title:') === 0){
+                if(arrwithstrs[x].length > 'Title:'.length)
+                    ObjectForSend.title = arrwithstrs[x].substr('Title:'.length,arrwithstrs[x].length).trim();
+                else
+                error =  "Title is empty somewhere";
+            }
+            else
+            error =  "Title are not set somewhere";
+            x++;
+        }
+        if(x % 4 === 1){
+            if(arrwithstrs[x].indexOf('Release Year:') === 0){
+                if(arrwithstrs[x].length > 'Release Year:'.length){
+                    if (Number.isInteger(Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())) &&
+                        arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())
+                            ObjectForSend.year = arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim();
+                    else
+                    error =  "Release Year is not a number somewhere";
+                }
+                else
+                error = "Release Year are empty somewhere";
+            }
+            else
+            error = "Release Year are not set somewhere";
+            x++;
+        }
+        if (x % 4 === 2){
+          if ( arrwithstrs[x].indexOf('Format:') === 0) {
+              let format =arrwithstrs[x].substr('Format:'.length, arrwithstrs[x].length).trim();
+                  if (format === "DVD" || format === "VHS" || format === "Blu-Ray")
+                      ObjectForSend.format = arrwithstrs[x].substr('Format:'.length, arrwithstrs[x].length).trim();
+                  else
+                      error = "Format is not right somewhere";
+          }
+          else
+            error = "Format are not set somewhere";
+          x++
+      }
+      if (x % 4 === 3){
+        if(arrwithstrs[x].indexOf("Stars:") === 0) {
+            var stararr = arrwithstrs[x].substr("Stars:".length,arrwithstrs[x].length).split(',');
+            
+            for(let a = 0; a < stararr.length; a++)
+                stararr[a] = stararr[a].trim();
+            if(arrwithstrs[x].substr("Stars:",arrwithstrs[x].length).trim().length > 0)
+                ObjectForSend.stars = stararr;
+            else 
+                 error = "Stars are not set somewhere";
+        }
+        else 
+        error = "Stars are not set somewhere";
+    
+    if (Object.keys(ObjectForSend).length === 4)
+        sendObj.push(ObjectForSend);
+    if(error === "" && x + 1 === arrwithstrs.length ) {
+        // axios.post('http://localhost:3001/adding/',sendObj)
+        // .then(res => this.setState({successFile: res.data.toString()}))
+        setMainObj(sendObj)
+        console.log(sendObj)
+        setSuccesFile("All ok")
+        setErrorFile("")
+    }
+    else if(error){
+      setErrorFile(error)
+      setSuccesFile("")
+    }
+      }
+    }
+      }, [InnerFile])
 
   const onDrop = (files) => {
+    const reader = new FileReader();
 
-      let formData = new FormData();
-      const config = {
-          header: { 'content-type': 'multipart/form-data' }
-      }
-      formData.append("file", files[0])
-      //save the Image we chose inside the Node Server 
-      axios.post('/api/product/uploadImage', formData, config)
-          .then(response => {
-              if (response.data.success) {
-                  setImages([...Images, response.data.image])
-                  props.refreshFunction([...Images, response.data.image])
-              } else {
-                  alert('Failed to save the Image in Server')
-              }
-          })
+    reader.onload = async (e) => { 
+      setInnerFile(e.target.result)
+    };
+
+    reader.readAsText(files[0]);
   }
 
-
-  const onDelete = (image) => {
-      const currentIndex = Images.indexOf(image);
-
-      let newImages = [...Images]
-      newImages.splice(currentIndex, 1)
-
-      setImages(newImages)
-      props.refreshFunction(newImages)
-  }
- 
-  const addLinkImg = () => {
-    setImages([...Images, imageInput])
-    props.refreshFunction([...Images, imageInput])
-    setImageInput('')
-  }
 
   return (
     <>
@@ -1048,20 +1115,9 @@ function FileUpload(props) {
                   </div>
               )}
           </Dropzone>
-
-          <div className="upload-images" style={{ display: 'flex',  height: '240px', overflowX: 'scroll' }}>
-
-              {Images.map((image, index) => (
-                      <img key={index+`${config.MAGIC_HOST}/${image}`} onClick={() => onDelete(image)} src={(image.substring(0, 7) === 'uploads') ? `${config.MAGIC_HOST}/${image}` : `${image}`} alt={`productImg-${index}`} />
-              ))}
-
-
-          </div>
-
+                
       </div>
-      <div className="input-image-link">
-      <input value={imageInput} placeholder="Because hosting is free, files are deleted after 15 minutes, so upload links of image"  onChange={(e) => setImageInput(e.target.value)}/> <button  onClick={addLinkImg} type="button">Set image link</button>
-      </div>
+     
     </>
   )
 }
@@ -1107,7 +1163,7 @@ function UploadProductPage(props) {
       }
 
 
-      axios.post('/api/product/uploadWeapon', variables)
+      axios.post('/api/product/uploadFilm', variables)
           .then(response => {
               if (response.data.success) {
                   alert('Product Successfully Uploaded')
