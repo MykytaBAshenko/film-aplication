@@ -811,7 +811,7 @@ useEffect(() => {
 
 const getFilms = () => {
   
-  axios.post(`${PRODUCT_SERVER}/getFilms`)
+  axios.post(`${PRODUCT_SERVER}/get/films`)
       .then(response => {
           setFilmsFromServer(response.data.films) 
           setShowFilms(response.data.films) 
