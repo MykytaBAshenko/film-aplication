@@ -166,8 +166,11 @@ const connect = mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUn
   .then(() => console.log('MongoDB Connected...'))
   .catch(err => console.log(err));
 
+  if (process.env.NODE_ENV === "production") {
 
-// app.use(cors())
+app.use(cors())
+  
+  }else
 app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
