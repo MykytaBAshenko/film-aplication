@@ -268,7 +268,7 @@ filmRouter.post("/uploadImage", auth, (req, res) => {
 
 
 
-filmRouter.post("/getFilms", (req, res) => {
+filmRouter.post("/films", (req, res) => {
     Film.find().populate("writer").exec((err, films) => {
                         if (err) return res.status(400).json({ success: false, err })
                         res.status(200).json({ success: true, films})

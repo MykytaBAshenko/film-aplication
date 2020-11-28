@@ -50,7 +50,7 @@ const REMOVE_CART_ITEM_USER = 'remove_cart_item_user';
 const ON_SUCCESS_BUY_USER = 'on_success_buy_user';
 const LOAD_PRODUCTS = "load_products"
 const USER_SERVER = '/api/users';
-const PRODUCT_SERVER = '/api/film';
+const FILM_SERVER = '/api/film';
 const RMRF_FROM_CART = "RMRF_FROM_CART"
 const RMRF_ALL_FROM_CART = "RMRF_ALL_FROM_CART"
 const DECRISE_FROM_CART = "DECRISE_ALL_FROM_CART"
@@ -811,7 +811,7 @@ useEffect(() => {
 
 const getFilms = () => {
   
-  axios.post(`${PRODUCT_SERVER}/get/films`)
+  axios.post(`${FILM_SERVER}/films`)
       .then(response => {
           setFilmsFromServer(response.data.films) 
           setShowFilms(response.data.films) 
@@ -1038,7 +1038,7 @@ function FileUpload(props) {
   }
 
 const uploadFile = () => {
-    axios.post(`${PRODUCT_SERVER}/upload/films`,MainObj)
+    axios.post(`${FILM_SERVER}/upload/films`,MainObj)
     .then(res => setSuccesUpload (res.data.toString()))
 }
   return (
@@ -1106,7 +1106,7 @@ function UploadProductPage(props) {
           format: Format,
           stars: Stars
       }
-      axios.post(`${PRODUCT_SERVER}/upload/film`,variables)
+      axios.post(`${FILM_SERVER}/upload/film`,variables)
           .then(response => {
               if (response.data.success) {
                   alert('Product Successfully Uploaded')
