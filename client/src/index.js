@@ -20,6 +20,7 @@ import {
   Input,
   Button,
 } from 'antd';
+import { set } from 'mongoose';
 // import { set } from 'mongoose';
 // import { settings } from 'cluster';
 const config = {
@@ -754,11 +755,11 @@ function LandingPage(props) {
 //   });
 const [FilmsFromServer,setFilmsFromServer] = useState([]);
 const [ShowFilms, setShowFilms] = useState([])
-
 const [ShowStar, setShowStar] = useState("");
 const [ShowName, setShowName] = useState("");
-const [ShowOnlyMine,setShowOnliMine] = useState(false);
+const [ShowOnlyMine,setShowOnlyMine] = useState(false);
 let redux = useSelector(state => state.redux);
+const UserId = redux?.userData?._id
 
 
 useEffect(() => {
@@ -788,7 +789,16 @@ useEffect(() => {
     }
     newShowArray = ChangeShowArray
   }
-  
+  if(ShowOnlyMine){
+    let ChangeShowArray = [];
+    for(let elm = 0; elm < newShowArray.length; elm++ ){
+      if(newShowArray[elm].writer._id === UserId)
+      ChangeShowArray.push(newShowArray[elm])
+    }
+    newShowArray = ChangeShowArray
+  }
+
+  console.log(newShowArray)
 
   // console.log(newShowArray)
   // if(ShowStar){
@@ -827,7 +837,7 @@ const getFilms = () => {
     <div className="main-page-store-shell">
       <input placeholder="star" value={ShowStar} onChange={(e) => setShowStar(e.target.value)}></input>
       <input placeholder="title" value={ShowName} onChange={(e) => setShowName(e.target.value)}></input>
-
+      <button onClick={() => setShowOnlyMine(!ShowOnlyMine)}>{ShowOnlyMine ?  "Show all" :  "Show only mine"}</button>
     {/* <div className="main-page-store">
       <div className="main-page-filters">
         <div className="main-page-search">
