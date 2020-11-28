@@ -752,18 +752,45 @@ function LandingPage(props) {
 //       window.removeEventListener("scroll", listener);
 //     };
 //   });
+const [FilmsFromServer,setFilmsFromServer] = useState([]);
+const [ShowFilms, setShowFilms] = useState([])
+
+const [ShowStar, setShowStar] = useState("");
+const [ShowName, setShowName] = useState("");
+const [ShowOnlyMine,setShowOnliMine] = useState(false);
+let redux = useSelector(state => state.redux);
 
 
 useEffect(() => {
 
-      getProducts()
+      getFilms()
   }, [])
 
-const getProducts = (variables) => {
+
+
+useEffect(() => {
+  let newShowArray = FilmsFromServer;
+  if(ShowName){
+    newShowArray =  newShowArray.filter(function(elem) {
+      return elem.title.toLowerCase().indexOf(ShowName.toLowerCase()) != -1;
+  });
+  }
+  console.log(newShowArray)
+  // if(ShowStar){
+  //   for(let )
+  // }
+
+
+  console.log(redux)
+}, [redux,ShowOnlyMine, ShowName, ShowStar])
+
+const getFilms = () => {
   
   axios.post(`${PRODUCT_SERVER}/getFilms`)
       .then(response => {
-          console.log(response.data)  
+          setFilmsFromServer(response.data.films) 
+          setShowFilms(response.data.films) 
+          console.log(response.data.films)
         // if (response.data.success) {
           //     if (variables.loadMore) {
           //         setProducts([...Products, ...response.data.products])
@@ -780,116 +807,12 @@ const getProducts = (variables) => {
           // }
       })
 }
-// const onLoadMore = () => {
-//   let skip = Skip + Limit;
 
-//   const variables = {
-//     skip: skip,
-//     weapon: WhatWeapon,
-//     SortBy: SortBy,
-//     min_price: MinPrice,
-//     max_price: SearchMaxPrice,
-//     loadMore: true,
-//     limit: Limit,
-//     searchTerm: SearchTerms
-//   }
-//   getProducts(variables)
-//   setSkip(skip)
-// }
-
-
-// const updateSearchTerms = (newSearchTerm) => {
-//   const variables = {
-//       skip: 0,
-//       weapon: WhatWeapon,
-//       SortBy: SortBy,
-//       min_price: MinPrice,
-//       max_price: SearchMaxPrice,
-//       limit: Limit,
-//       searchTerm: newSearchTerm
-//   }
-
-//   setSkip(0)
-//   setSearchTerms(newSearchTerm)
-//   getProducts(variables)
-// }
-
-// const updateMinCost = (e) => {
-// if(allow_in1sec || e.target.value == 0) {
-//   allow_in1sec = 0;
-//   const variables = {
-//     skip: 0,
-//     weapon: WhatWeapon,
-//     limit: Limit,
-//     SortBy: SortBy,
-//     min_price: e.target.value,
-//     max_price: SearchMaxPrice,
-//     searchTerm: SearchTerms
-// }
-// setSkip(0)
-// setMinPrice(e.target.value)
-// getProducts(variables)
-// }
-
-// }
-
-// const updateMaxCost = (e) => {
-// if(allow_in1sec || e.target.value == 0) {
-//   allow_in1sec = 0;
-//   const variables = {
-//     skip: 0,
-//     weapon: WhatWeapon,
-//     SortBy: SortBy,
-//     limit: Limit,
-//     min_price: MinPrice,
-//     max_price: e.target.value,
-//     searchTerm: SearchTerms
-// }
-// setSkip(0)
-// setSearchMaxPrice(e.target.value)
-// getProducts(variables)
-// }
-
-// }
-
-// const set_checked_t = (w) => {
-  
-//   let arr = WhatWeapon;
-//   arr[w] = !arr[w];
-//   setWhatWeapon(arr)
-  
-//   const variables = {
-//     skip: 0,
-//     weapon: WhatWeapon,
-//     SortBy: SortBy,
-//     limit: Limit,
-//     min_price: MinPrice,
-//     max_price: SearchMaxPrice,
-//     searchTerm: SearchTerms
-// }
-// setSkip(0)
-
-// getProducts(variables)
-// }
-
-// const onSortByChange = (event) => {
-//   const variables = {
-//     skip: 0,
-//     weapon: WhatWeapon,
-//     SortBy: event.currentTarget.value,
-//     limit: Limit,
-//     min_price: MinPrice,
-//     max_price: SearchMaxPrice,
-//     searchTerm: SearchTerms
-// }
-// setSortBy(event.currentTarget.value)
-// setSkip(0)
-
-// getProducts(variables)
-
-// }
   return(
     <div className="main-page-store-shell">
+      <input placeholder="star" value={ShowStar} onChange={(e) => setShowStar(e.target.value)}></input>
+      <input placeholder="title" value={ShowName} onChange={(e) => setShowName(e.target.value)}></input>
+
     {/* <div className="main-page-store">
       <div className="main-page-filters">
         <div className="main-page-search">
@@ -971,6 +894,7 @@ const getProducts = (variables) => {
     </div>
   )
 }
+const regex = /[.*+?^${}()|[\]\\]/g
 function FileUpload(props) {
   const [InnerFile, setInnerFile] = useState('')
   const [ShowBtn, setShowBtn] = useState(false)
@@ -1043,7 +967,11 @@ function FileUpload(props) {
                 stararr[a] = stararr[a].trim();
             if (stararr.indexOf("") != -1)
               error = "Stars are not set somewhere";
+              for(let a = 0; a < stararr.length; a++)
+                if(stararr[a].match(regex))
+                  error = "Stars has bad chars somewhere";
 
+            
             if(arrwithstrs[x].trim().substr("Stars:",arrwithstrs[x].length).trim().length > 0)
                 ObjectForSend.stars = stararr;
             else 
@@ -1168,9 +1096,13 @@ function UploadProductPage(props) {
   const [StarInput, setStarInput] = useState("")
   const [Important, setImportant] =useState(false)
   const addStarToArr =() => {
+    
+    if(StarInput.trim().match(regex))
+      alert ( "Star has bad chars somewhere");
     if(StarInput.trim().length> 0){
-    setStars([...Stars,StarInput])
+    setStars([...Stars,StarInput.trim()])
       setStarInput("")
+     
 
   }
   setStarInput("")
@@ -1250,47 +1182,6 @@ function My404Component(){
     <div>404</div>
     <a href="/">Back to home page</a>
   </div>
-}
-
-function Footer () {
-  return<footer className="footer-main">
-    <div className="footer-top">
-      <div className="footer-top-left">
-        <div className="footer-top-left-logo">GunstaSHOP</div>
-        <div className="footer-top-left-icons">
-          <ul>
-            <li>
-              <a href="#">
-                <i className="fab fa-instagram"></i>
-              </a>
-            </li>
-            <li>
-              <a href="#">
-                <i className="fab fa-youtube"></i>
-              </a>
-            </li>
-            <li>
-              <a href="#">
-                <i className="fab fa-telegram"></i>
-              </a>
-            </li>
-            <li>
-              <a href="#">
-                <i className="fab fa-facebook"></i>
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div className="PhoneFooter">
-          +3805050505050
-        </div>
-      </div>
-      <div className="footer-top-right">
-        <img src="https://paypalinfo.com.ua/wp-content/uploads/2019/04/paypal_2014_logo.svg_.png" alt="PayPal" />
-      </div>
-    </div>
-    <div className="copiright-footer">© Сreated by <a href="https://www.linkedin.com/in/mykyta-bashenko-538043183/">Bashenko Mykyta</a> <a href="https://github.com/MykytaBAshenko/MERN_Store">Source code</a></div>
-  </footer>
 }
 
 function DetailProductPage(props){
@@ -1420,30 +1311,7 @@ function DetailProductPage(props){
   
 }
 
-export function onSuccessBuy(data) {
 
-  const request = axios.post(`${USER_SERVER}/successBuy`, data)
-      .then(response => response.data);
-  return {
-      type: ON_SUCCESS_BUY_USER,
-      payload: request
-  }
-}
-
-
-
-function timeConverter(UNIX_timestamp){
-  var a = new Date(UNIX_timestamp * 1000);
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var year = a.getFullYear();
-  var month = months[a.getMonth()];
-  var date = a.getDate();
-  var hour = a.getHours();
-  var min = a.getMinutes();
-  var sec = a.getSeconds();
-  var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
-  return time;
-}
 
 
 
@@ -1597,7 +1465,7 @@ function App(props) {
       <div className="main-div" style={{  minHeight: 'calc(100vh - 175px)' }}>
       <Route path="/" component= {NavBar} />
          <Switch>
-          <Route exact path="/" component={Auth(LandingPage, null)} />
+          <Route exact path="/" component={Auth(LandingPage, true)} />
           <Route exact path="/register" component={Auth(RegisterPage, false)} />
           <Route exact path="/login" component={Auth(LoginPage, false)} />
           <Route exact path="/upload" component={Auth(UploadProductPage, true)} />
@@ -1606,7 +1474,6 @@ function App(props) {
           <Route path='*' exact={true} component={My404Component} />
         </Switch>
         </div>
-      <Footer/>
 
         </Suspense>
   );

@@ -27,26 +27,11 @@ const userSchema = mongoose.Schema({
       trim: true,
       unique: 1
   },
-//   image: {
-//     type: String,
-//     minglength: 5
-//   },
   password: {
       type: String,
       minglength: 5
   },
-//   role: {
-//       type: Number,
-//       default: 0
-//   },
-//   cart: {
-//       type: Array,
-//       default: []
-//   },
-//   history: {
-//       type: Array,
-//       default: []
-//   },
+
   token: {
       type: String,
   },
