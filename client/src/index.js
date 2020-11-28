@@ -13,20 +13,16 @@ import moment from "moment";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import Dropzone from 'react-dropzone';
-import PaypalExpressBtn from 'react-paypal-express-checkout';
 
 import {
   Form,
   Input,
   Button,
 } from 'antd';
-import { set } from 'mongoose';
-// import { set } from 'mongoose';
-// import { settings } from 'cluster';
+
 const config = {
   MAGIC_HOST: ""
 };
-const { TextArea } = Input;
 
 if (process.env.NODE_ENV === 'production') {
   config.MAGIC_HOST=window.location.origin
@@ -44,16 +40,10 @@ const LOGIN_USER = 'login_user';
 const REGISTER_USER = 'register_user';
 const AUTH_USER = 'auth_user';
 const LOGOUT_USER = 'logout_user';
-const ADD_TO_CART_USER = 'add_to_cart_user';
-const GET_CART_ITEMS_USER = 'get_cart_items_user';
-const REMOVE_CART_ITEM_USER = 'remove_cart_item_user';
-const ON_SUCCESS_BUY_USER = 'on_success_buy_user';
-const LOAD_PRODUCTS = "load_products"
+
 const USER_SERVER = '/api/users';
 const FILM_SERVER = '/api/film';
-const RMRF_FROM_CART = "RMRF_FROM_CART"
-const RMRF_ALL_FROM_CART = "RMRF_ALL_FROM_CART"
-const DECRISE_FROM_CART = "DECRISE_ALL_FROM_CART"
+
 
 
  function redux (state = {}, action) {
@@ -67,50 +57,7 @@ const DECRISE_FROM_CART = "DECRISE_ALL_FROM_CART"
           return { ...state, userData: action.payload }
       case LOGOUT_USER:
           return { ...state }
-      case ADD_TO_CART_USER:
-          return {
-              ...state, userData:{...state.userData,cart: action.payload}
-
-          }
-      case GET_CART_ITEMS_USER:
-          return {
-              ...state, cartDetail: action.payload
-          }
-      case REMOVE_CART_ITEM_USER:
-          return {
-              ...state,
-              cartDetail: action.payload.cartDetail,
-              userData: {
-                  ...state.userData,
-                  cart: action.payload.cart
-              }
-
-          }
-      case ON_SUCCESS_BUY_USER:
-          return {
-              ...state,
-              userData: {
-                  ...state.userData,
-                  cart: action.payload.cart,
-                  history: action.payload.history,
-              }
-          }
-      case RMRF_FROM_CART:
-        return {
-          ...state, userData:{...state.userData,cart: action.payload.cart}
-        }
-      case RMRF_ALL_FROM_CART : 
-      return {
-        ...state, userData: {
-          ...state.userData, cart: action.payload.cart
-        }
-      }
-      case DECRISE_FROM_CART : 
-      return {
-        ...state, userData: {
-          ...state.userData, cart: action.payload
-        }
-      }
+ 
       default:
           return state;
   }
@@ -154,89 +101,10 @@ function auth() {
   }
 }
 
-function addToCart(_id) {
-  const request = axios.get(`${USER_SERVER}/addToCart?productId=${_id}`)
-      .then(response => response.data);
-
-  return {
-      type: ADD_TO_CART_USER,
-      payload: request
-  }
-}
-
-function cleanCart(_id) {
-  const request = axios.get(`${USER_SERVER}/rmrfFromCart?_id=${_id}`)
-      .then(response => response.data);
-  return {
-      type: RMRF_FROM_CART,
-      payload: request
-  }
-}
-
-function cleanAllCart() {
-  const request = axios.get(`${USER_SERVER}/rmrfAllFromCart`)
-      .then(response => response.data);
-  return {
-      type: RMRF_ALL_FROM_CART,
-      payload: request
-  }
-}
-
-function decriseFromCart(_id) {
-  const request = axios.get(`${USER_SERVER}/decriseFromCart?productId=${_id}`)
-      .then(response => response.data);
-      console.log(request)
-  return {
-      type: DECRISE_FROM_CART,
-      payload: request
-  }
-}
 
 
 
-class Paypal extends React.Component {
-  render() {
-      const onSuccess = (payment) => {
-          console.log("The payment was succeeded!", payment);
-          this.props.onSuccess(payment);
-      
-      }
 
-      const onCancel = (data) => {
-          console.log('The payment was cancelled!', data);
-      }
-
-      const onError = (err) => {
-          console.log("Error!", err);
-      }
-
-      let env = 'sandbox'; 
-      let currency = 'USD'; 
-      let total = this.props.toPay; 
-
-      const client = {
-          sandbox: 'AfyGTdb67AGvKUAa1kpLTn-s2ycDsk0t2oosnETXZzlBW22-Rzhhgntk7bj-0zDgZvMY3GkkLmwqLaYm',
-          production: 'YOUR-PRODUCTION-APP-ID',
-      }
-     return (
-          <PaypalExpressBtn
-              env={env}
-              client={client}
-              currency={currency}
-              total={total}
-              onError={onError}
-              onSuccess={onSuccess}
-              onCancel={onCancel}
-              style={{ 
-                  size:'large',
-                  color:'blue',
-                  shape: 'rect',
-                  label: 'checkout'
-              }}
-               />
-      );
-  }
-}
 
 function Auth (ComposedClass, reload, adminRoute = null) {
   function AuthenticationCheck(props) {
@@ -274,73 +142,9 @@ function Auth (ComposedClass, reload, adminRoute = null) {
 
 const createStoreWithMiddleware = applyMiddleware(promiseMiddleware, ReduxThunk)(createStore);
 
-function HeaderCart(props){
-  const dispatch = useDispatch()
-  let redux = useSelector(state => state.redux);
-
-  return(
-    <div className="cart-header-block-shell" >
-      <div className="cart-header-block">
-      <div className="cart-header-block-buttons">
-        <a className="cart-header-block-button" href="/cart">Buy</a>
-        <a className="cart-header-block-button" onClick={() => dispatch(cleanAllCart())}>Clean</a>
-        <div></div>
-        <a className="cart-header-block-button" onClick={() => props.setCartVisib()}>X</a>
-      </div>
-      <div className="cart-header-block-list-start">
-        {redux.userData.cart.length === 0 ? 
-        <div className="Cart-is-empty">Cart is empty</div>:
-        
-        <div className="cart-header-block-list">
-          {redux.userData.cart.map((cart,index) => 
-            <div key={index} className="cart-header-block-list-element">
-            <div id={"carouselProductControls"+index+index} className="carousel slide carousel-fade" data-ride="carousel">
-
-            <div className="carousel-inner">
-           { cart.productBody.images.map((image, index) => (
-                                     <div key={index+image} className={`d-flex flex-wrap align-items-center align-content-center carousel-item ${index === 0 ? "active" : ""}`}>
-                                         <img className="d-block my-auto mx-auto carusel-product-image" 
-                                             src={(image.substring(0, 7) === 'uploads') ? `${config.MAGIC_HOST}/${image}` : `${image}`} alt="productImage" />
-                                     </div>
-                                 ))}
-           { cart.productBody.images.length > 1 ? <>
-           <a className="carousel-control carousel-control-prev" href={"#carouselProductControls"+index+index} role="button" data-slide="prev">
-           <i className="fas fa-angle-left"></i>
-           </a>
-           <a className="carousel-control carousel-control-next" href={"#carouselProductControls"+index+index} role="button" data-slide="next">
-           <i className="fas fa-angle-right"></i>
-           </a>
-           </> : null
-         }
-           </div>
-           </div>
-            <div className="cart-header-block-list-description">
-          <div className="cart-header-block-list-description-name">{cart.productBody && cart.productBody.title}</div>
-            </div>
-            <div className="cart-header-block-list-actions">
-              <div className="cart-header-block-list-count">{cart.quantity}</div>
-              <div className="cart-header-block-list-add header-list-action" onClick={() => dispatch(addToCart(cart.id))}>+</div>
-              <div className="cart-header-block-list-decr header-list-action" onClick={() =>  dispatch(decriseFromCart(cart.id))}>-</div>
-              <div className="cart-header-block-list-remove header-list-action" onClick={() => dispatch(cleanCart(cart.id))}><i className="fa fa-trash"></i></div>
-            </div>
-          </div>
-          )}
-        </div>
-
-}
-      </div>
-      </div>
-    </div>
-  )
-}
-
 
 function NavBar(props) {
-  const [cartvisib, setcartvisib] = useState(false);
-
-  const setCartVisib = () => {
-    setcartvisib(!cartvisib)
-  }
+ 
   const logoutHandler = () => {
     axios.get(`${USER_SERVER}/logout`).then(response => {
       if (response.status === 200) {
@@ -357,7 +161,7 @@ function NavBar(props) {
   <div className="yellow-line">
     <nav className="navbar   navbar-expand-lg ">
   <a href="/" className="navbar-brand">GunstaSHOP</a>
-  <button onClick={cartvisib ? setCartVisib : null} className="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+  <button className="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
     <i className="fas fa-bars"></i>
   </button>
   <div className="collapse navbar-collapse" id="navbarCollapse">
@@ -373,10 +177,7 @@ function NavBar(props) {
       :
       <ul className="navbar-nav ml-auto">
         <li className="navbar-item">
-          <a href="/" className="nav-link">Store</a>
-        </li>
-        <li className="navbar-item">
-          <a href="/history" className="nav-link">History</a>
+          <a href="/" className="nav-link">Films</a>
         </li>
         <li className="navbar-item">
           <Link to="/upload" className="nav-link">Upload</Link>
@@ -388,25 +189,13 @@ function NavBar(props) {
           <a onClick={logoutHandler} className="nav-link">Log out</a>
         </li>
         
-        <li  className="navbar-item">
-          
-          <a onClick={(e) => setCartVisib() && e.preventDefault()}  id="elm" className="nav-link cart-in-header">
-          
-          { redux?.userData?.cart?.length ?
-          <span className="count_in_store">{redux.userData.cart.length}</span> : null
-        }
-        <Icon type="shopping-cart" className="cart-link" />
-          
-            </a>
-        </li>
+      
       </ul>
 }
   </div>
 </nav>
 </div>
-{ cartvisib &&
-<HeaderCart setCartVisib={setCartVisib} cartvisib={cartvisib}/>
-}
+
 
 </div>
 </>
@@ -703,56 +492,6 @@ const SortBye = [
 ]
 function LandingPage(props) {
 
-//   const [Products, setProducts] = useState([]);
-//   const [Skip, setSkip] = useState(0)
-//   const [Page, setPage] = useState(1)
-
-//   const [Limit, setLimit] = useState(10)
-//   const [PostSize, setPostSize] = useState()
-//   const [SearchTerms, setSearchTerms] = useState("")
-//   const [MaxPrice, setMaxPrice] = useState(0)
-//   const [MinPrice, setMinPrice] = useState(0)
-//   const [SearchMaxPrice, setSearchMaxPrice] = useState(0)
-//   const [SortBy, setSortBy] = useState('Default')
-
-//   let array_for_check = [];
-//   for(let gg = 0 ; gg < TypesOfFilm.length; gg++)
-//     array_for_check.push(false)
-//   const [WhatWeapon, setWhatWeapon] = useState(array_for_check)
-//   const dispatch = useDispatch()
-  
-//   useEffect(() => {
-
-//     const variables = {
-//         skip: Skip,
-//         limit: Limit,
-//     }
-//     getProducts(variables)
-// }, [])
-
-
-// const [lastScrollTop, setLastScrollTop] = useState(0);
-//   const [bodyOffset, setBodyOffset] = useState(
-//     document.body.getBoundingClientRect()
-//   );
-//   const [scrollY, setScrollY] = useState(bodyOffset.top);
-//   const [scrollX, setScrollX] = useState(bodyOffset.left);
-//   const [scrollDirection, setScrollDirection] = useState();
-
-//   const listener = e => {
-//     setBodyOffset(document.body.getBoundingClientRect());
-//     setScrollY(-bodyOffset.top);
-//     setScrollX(bodyOffset.left);
-//     setScrollDirection(lastScrollTop > -bodyOffset.top ? "down" : "up");
-//     setLastScrollTop(-bodyOffset.top);
-//   };
-
-//   useEffect(() => {
-//     window.addEventListener("scroll", listener);
-//     return () => {
-//       window.removeEventListener("scroll", listener);
-//     };
-//   });
 const [FilmsFromServer,setFilmsFromServer] = useState([]);
 const [ShowFilms, setShowFilms] = useState([])
 const [ShowStar, setShowStar] = useState("");
@@ -833,91 +572,13 @@ const getFilms = () => {
         }
 
       </div>
-    {/* <div className="main-page-store">
-      <div className="main-page-filters">
-        <div className="main-page-search">
-          <input value={SearchTerms} placeholder="Search by name" className="main-page-term-search" onChange={(e) => updateSearchTerms(e.target.value)} />
-        </div>
-        <div className="main-page-price">
-        <div className="main-page-range-filter-block">
-           <input type="number" placeholder="Min" min={0} value={MinPrice == 0? "" : MinPrice} max={SearchMaxPrice} onChange={(e) => updateMinCost(e)}/><input type="number" placeholder="Max" value={SearchMaxPrice == 0? "" : SearchMaxPrice} onChange={(e) => updateMaxCost(e)} min={MinPrice} max={MaxPrice}/>
-        </div> 
-        </div>
-        <div className="main-page-sort">
-        <select onChange={onSortByChange} className="main-page-select-search" value={SortBy}>
-          {SortBye.map((item, index) => (
-              <option key={item.index + item.value} >{item.value} </option>
-          ))}
-        </select>
-        </div>
-        <ul className="main-page-checkout">
-        {TypesOfFilm.map((weapon, index) => <li key={weapon.value}>
-          <input id={weapon.value+weapon.weapon} type="checkbox" onChange={() => set_checked_t(index) } checked={WhatWeapon[index]}/>
-            <label htmlFor={weapon.value+weapon.weapon} className="checkbox">{weapon.value}</label>  
-          </li>)}
-        </ul>
-      </div>
-      <div className="main-page-products">
-      {Products.length === 0 ? 
-        <div className="no-post-yet" style={{ display: 'flex', height: '300px', justifyContent: 'center', alignItems: 'center' }}>
-          <h2>No post yet...</h2>
-        </div> :<>
-
-        <ul className="main-page-list-of-products">
-          {
-            Products.map((product, index) => <li key={index} className="main-page-product-element">
-              <div id={"carouselProductControls"+index} className="carousel slide carousel-fade" data-ride="carousel">
-                         <div className="carousel-inner">
-                         {product.images.map((image, index) => (
-                                                   <div key={index+image} className={`d-flex flex-wrap align-items-center align-content-center carousel-item ${index === 0 ? "active" : ""}`}>
-                                                       <img className="d-block  mx-auto carusel-product-image" 
-                                                           src={(image.substring(0, 7) === 'uploads') ? `${config.MAGIC_HOST}/${image}` : `${image}`} alt="productImage" />
-                                                   </div>
-                                               ))}
-                         </div>
-                         {product.images.length > 1 ? <>
-                         <a className="carousel-control carousel-control-prev" href={"#carouselProductControls"+index} role="button" data-slide="prev">
-                         <i className="fas fa-angle-left"></i>
-                         </a>
-                         <a className="carousel-control carousel-control-next" href={"#carouselProductControls"+index} role="button" data-slide="next">
-                         <i className="fas fa-angle-right"></i>
-                         </a>
-                         </> : null
-                       }
-                       </div>
-                       <div className="main-page-title">
-                <a href={`/product/${product._id}`} >{product.title.length < 50 ? product.title :    product.title.substr(0,50)+'...'
-}</a>
-</div>
-                <div className="main-page-cost-of-element">$ {product.price}</div>
-
-              </li>
-          )}
-          
-        </ul>
-        <ul className="main-page-list-of-btns">
-        { Products.length < PostSize  ?
-        <li>
-          <button className="main-page-btn-1" onClick={onLoadMore}>Load More</button>
-        </li> : null
-        }
-        { scrollY  >100 && window.scrollY > 10 ?
-        <li>
-          <button className="main-page-btn-2" onClick={() => window.scrollTo(0, 0)}>Scroll on top</button>
-        </li> : null
-        }
-        </ul>
-        </>
-        }
-      </div>
-    </div> */}
+ 
     </div>
   )
 }
 const regex = /[.*+?^${}()|[\]\\]/g
 function FileUpload(props) {
   const [InnerFile, setInnerFile] = useState('')
-  const [ShowBtn, setShowBtn] = useState(false)
   const [MainObj, setMainObj] = useState([])
   const [ErrorFile, setErrorFile] = useState("")
   const [SuccesFile, setSuccesFile] = useState("")
@@ -1005,10 +666,7 @@ function FileUpload(props) {
       sendObj.push(ObjectForSend);
     }
     if(error === "" && x + 1 === arrwithstrs.length ) {
-        // axios.post('http://localhost:3001/adding/',sendObj)
-        // .then(res => this.setState({successFile: res.data.toString()}))
         setMainObj(sendObj)
-        console.log(sendObj)
         setSuccesFile("All ok")
         setErrorFile("")
     }
@@ -1368,31 +1026,22 @@ function changePassword(dataToSubmit) {
 
 function SettingsPage (props) {
   let redux = useSelector(state => state.redux);
-  const [Products, setProducts] = useState([])
-  const [SearchProducts, setSearchProducts] = useState([])
+  const [Films, setFilms] = useState([])
 
-  const rmrfFromProducts = (idid) => {
-    axios.get(`${FILM_SERVER}/rmrfProduct?userId=${redux.userData._id}&productId=${idid}`).then(response => {
-      setProducts(response.data)
-  })
-  }
+  // const rmrfFromProducts = (idid) => {
+  //   axios.get(`${FILM_SERVER}/rmrfProduct?userId=${redux.userData._id}&productId=${idid}`).then(response => {
+  //     setProducts(response.data)
+  // })
+  // }
 
-  const getUserProducts = (e) => {
-    setSearchProducts(e.target.value)
-
-    axios.get(`${FILM_SERVER}/getUserProducts?userId=${redux.userData._id}&term=${e.target.value}`).then(response => {
-      setProducts(response.data)
-    })
-
+  const getUserProducts = () => {
+    axios.post(`${FILM_SERVER}/films`).then((res) => 
+      console.log(res.data.films)
+    )
   } 
 
   useEffect(() => {
-    if(redux?.userData?._id){
-    axios.get(`${FILM_SERVER}/getUserProducts?userId=${redux.userData._id}`)
-        .then(response => {
-              setProducts(response.data)
-          })
-        }
+    getUserProducts()
   }, [redux])
 
   return (
@@ -1488,12 +1137,12 @@ function SettingsPage (props) {
             <h4 className="logo-setttings-delete-logo">Delete Your Products</h4>
 
             <div className="deleteBtns">
-              <input placeholder="Find your product" value={SearchProducts} onChange={(e) =>  getUserProducts(e)} />
-              {Products.map((item, index) => <div className="delete-row" key={index}>
-                <div>{item.title}</div>
+              <input placeholder="Find your product"  onChange={(e) =>  getUserProducts(e)} />
+              {Films.map((item, index) => <div className="delete-row" key={index}>
+                {/* <div>{item.title}</div>
 <button onClick={() => rmrfFromProducts(item._id)}>
   X
-  </button>                
+  </button>                 */}
                  </div>)}
             </div>
           </div>
