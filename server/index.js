@@ -247,27 +247,19 @@ filmRouter.post("/uploadImage", auth, (req, res) => {
 
 
 
-// filmRouter.post("/uploadWeapon/:id", async (req, res) => {
-
-//     const projectId = req.body._id;
-//     const project = await Product.findById(projectId);
-//     if (project) {
-//       project._id = req.body._id;
-//       project.title = req.body.title;
-//       project.writer = req.body.writer;
-//       project.price = req.body.price;
-//       project.images = req.body.images;
-//       project.weapon = req.body.weapon;
-//       project.description = req.body.description;
-//       project.coments = req.body.coments;
-//       const updatedProject = await project.save();
-//       if (updatedProject) {
-//         return res.status(200).send({ message: 'Project Updated', data: updatedProject });
-//       }
-//     }
-//     return res.status(500).send({ message: ' Error in Updating Project.' });
-  
-//   });
+filmRouter.post("/update/film/:id",auth, async (req, res) => {
+    Film.findById(req.body._id).then(film => {
+      film._id = mongoose.Types.ObjectId(req.body._id);;
+      film.title = req.body.title;
+      film.writer =  mongoose.Types.ObjectId(req.body.writer);
+      film.year = req.body.year;
+      film.format = req.body.format;
+      film.stars = JSON.parse(JSON.stringify(req.body.stars));
+       film.save().then(() =>{return  res.status(200).json({ success: true, message:"film Updated"})})
+       .catch(err => res.status(400).json({ success: false, message:`Error ${err}`}));
+    }).catch((err) => res.status(400).json({ success: false, message:`Error ${err}` }))
+    // return res.status(500).send({ message: ' Error in updating project.' });
+      })    ;
 
 
 
@@ -368,57 +360,49 @@ filmRouter.post("/films", (req, res) => {
 });
 
 
-filmRouter.get("/film_by_id", (req, res) => {
-  let type = req.query.type
-  let productIds = req.query.id
-
-
-  if (type === "array") {
-      let ids = req.query.id.split(',');
-      productIds = [];
-      productIds = ids.map(item => {
-          return item
-      })
-  }
-
-  //we need to find the product information that belong to product Id 
-  Product.find({ '_id': { $in: productIds } })
+filmRouter.post("/getfilm", (req, res) => {
+  Film.find({ '_id': { $in: req.body.filmId } })
       .populate('writer')
-      .exec((err, product) => {
+      .exec((err, film) => {
           if (err) return res.status(400).send(err)
-          return res.status(200).send(product)
+          return res.status(200).send(film)
       })
 });
 
-filmRouter.get("/getUserProducts", (req, res) => {
-    let userId = req.query.userId
-    let term = req.query.term
+// filmRouter.get("/getUserProducts", (req, res) => {
+//     let userId = req.query.userId
+//     let term = req.query.term
     
-    if(term)
-    Product.find({writer: userId}).find({ "title": { "$regex": term, "$options": "i" }}).exec((err, products) => {
-        if(err) return res.status(400).send(err)
-        res.status(200).send(products)
-    })
-    else{
-        Product.find({writer: userId}).exec((err, products) => {
-            if(err) return res.status(400).send(err)
-            res.status(200).send(products)
-        })
-    }
+//     if(term)
+//     Product.find({writer: userId}).find({ "title": { "$regex": term, "$options": "i" }}).exec((err, products) => {
+//         if(err) return res.status(400).send(err)
+//         res.status(200).send(products)
+//     })
+//     else{
+//         Product.find({writer: userId}).exec((err, products) => {
+//             if(err) return res.status(400).send(err)
+//             res.status(200).send(products)
+//         })
+//     }
  
-  });  
+//   });  
 
 
-  filmRouter.get("/rmrfProduct", (req, res) => {
-    let userId = req.query.userId
-    let productId = req.query.productId
+  filmRouter.delete("/delete/film/:filmId",auth, (req, res) => {
+    const filmId = req.params.filmId;
+
   
-    Product.find({ _id:productId }).remove().exec();
-    Product.find({writer: userId}).exec((err, products) => {
-        if(err) return res.status(400).send(err)
-        res.status(200).send(products)
-    })
- 
+    Film.find({ _id:filmId  }).remove().exec((err, ok) => {
+      if(err)
+      res.status(400).send({ message: 'Error', success: 0})
+      else 
+      res.status(200).send({ message: 'Film deleted', success: 1})
+    }
+    );
+    // Product.find({writer: userId}).exec((err, products) => {
+    //     if(err) return res.status(400).send(err)
+    //     res.status(200).send(products)
+    // })
   });  
 
 

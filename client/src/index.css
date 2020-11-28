@@ -1361,3 +1361,12 @@ padding: 0 10px;
 .logo-setttings-delete-logo{
   margin: 20px 0 0;
 }
+
+
+
+.filmCard *{
+  color: lime;
+}
+.filmCard{
+  padding-bottom: 20px;
+}

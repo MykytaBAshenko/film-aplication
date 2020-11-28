@@ -757,6 +757,7 @@ const [FilmsFromServer,setFilmsFromServer] = useState([]);
 const [ShowFilms, setShowFilms] = useState([])
 const [ShowStar, setShowStar] = useState("");
 const [ShowName, setShowName] = useState("");
+const [SortByName, setSortByName] = useState(false);
 const [ShowOnlyMine,setShowOnlyMine] = useState(false);
 let redux = useSelector(state => state.redux);
 const UserId = redux?.userData?._id
@@ -768,9 +769,9 @@ useEffect(() => {
   }, [])
 
 
-
+let ll = 0;
 useEffect(() => {
-  let newShowArray = FilmsFromServer;
+  let newShowArray =JSON.parse(JSON.stringify(FilmsFromServer));
   if(ShowName){
     newShowArray =  newShowArray.filter(function(elem) {
       return elem.title.toLowerCase().indexOf(ShowName.toLowerCase()) != -1;
@@ -797,39 +798,19 @@ useEffect(() => {
     }
     newShowArray = ChangeShowArray
   }
+  if(SortByName){
 
-  console.log(newShowArray)
-
-  // console.log(newShowArray)
-  // if(ShowStar){
-  //   for(let )
-  // }
-
-
-  console.log(redux)
-}, [redux,ShowOnlyMine, ShowName, ShowStar])
+    newShowArray.sort((a, b) => (a.title.toUpperCase() > b.title.toUpperCase()) ? 1 : (a.title.toUpperCase() === b.title.toUpperCase()) ?0 : -1 )
+  }
+  
+  setShowFilms(newShowArray)
+}, [redux,ShowOnlyMine,SortByName, ShowName, ShowStar])
 
 const getFilms = () => {
-  
   axios.post(`${FILM_SERVER}/films`)
       .then(response => {
           setFilmsFromServer(response.data.films) 
           setShowFilms(response.data.films) 
-          console.log(response.data.films)
-        // if (response.data.success) {
-          //     if (variables.loadMore) {
-          //         setProducts([...Products, ...response.data.products])
-          //     } else {
-          //         setProducts(response.data.products)
-
-          //     }
-          //     setPostSize(response.data.postSize)
-          //     if(response.data.maxPrice && response.data.maxPrice[0] ){
-          //       setMaxPrice(response.data.maxPrice[0].price)
-          //     }
-          // } else {
-          //     alert('Failed to fectch product datas')
-          // }
       })
 }
 
@@ -838,6 +819,20 @@ const getFilms = () => {
       <input placeholder="star" value={ShowStar} onChange={(e) => setShowStar(e.target.value)}></input>
       <input placeholder="title" value={ShowName} onChange={(e) => setShowName(e.target.value)}></input>
       <button onClick={() => setShowOnlyMine(!ShowOnlyMine)}>{ShowOnlyMine ?  "Show all" :  "Show only mine"}</button>
+      <button onClick={() => setSortByName(!SortByName)}>{SortByName ?  "Don`t sort by title" :  "Sort by title"}</button>
+      <div className="mapofFilms">
+        {
+          ShowFilms.map((film, index) => <div key={index} className="filmCard">
+            <div className="filmCardTitle">{film.title}</div>
+            <div className="filmCardYear">{film.year}</div>
+            <div className="filmCardFormat">{film.format}</div>
+        <ul className="filmCardStars">{film.stars.map((star, starindex) => <li key={starindex+ "_"+ index}>{star}</li>)}</ul>
+         {film.writer._id == redux.userData._id && <Link to={"/film/"+film._id}>Edit</Link>}
+
+          </div>)
+        }
+
+      </div>
     {/* <div className="main-page-store">
       <div className="main-page-filters">
         <div className="main-page-search">
@@ -1209,129 +1204,155 @@ function My404Component(){
   </div>
 }
 
-function DetailProductPage(props){
-  let was_in_cart = 0;
+function FilmPage(props){
   let redux = useSelector(state => state.redux);
-  const dispatch = useDispatch();
-  const User = useSelector(store => store.redux);
 
-  const productId = props.match.params.productId
-  let count_in_cart = 0;
+  const filmId = props.match.params.filmId
 
-  redux.userData && redux.userData.cart && redux.userData.cart.map((cart) => cart.id === productId ? count_in_cart = cart.quantity : null)
+  const [Film, setFilm] = useState([])
+  const [Title, setTitle] = useState("")
+  const [Year, setYear] = useState("")
+  const [Format, setFormat] = useState("VHS")
+  const [Stars, setStars] = useState([])
+  const [StarInput, setStarInput] = useState("")
 
-  const [Product, setProduct] = useState([])
-  const [CommentInput, setCommentInput] = useState("")
+  
   useEffect(() => {
-    axios.get(`/api/product/products_by_id?id=${productId}&type=single`)
-        .then(response => {
-              setProduct(response.data[0])
-          })
-
-  }, [])
-
-
-  const updatePage = () => {
-    axios.get(`/api/product/products_by_id?id=${productId}&type=single`)
-      .then(response => {
-            setProduct(response.data[0])
-        })
-  }
-
-  const submitComent = () => {
-    const variables = {
-      _id: Product._id,
-      writer: Product.writer._id,
-      title: Product.title,
-      description: Product.description,
-      price: Product.price,
-      images: Product.images,
-      weapon: Product.weapon,
-      coments: [...Product.coments, {comment:CommentInput, who_write_comment:User.userData.email}]
-  }
-  setCommentInput("")
-
-  axios.post(`/api/product/uploadWeapon/${productId}`, variables)
-  .then(response => {
     updatePage()
+
+  }, [redux])
+  useEffect(() => {
+    setTitle(Film.title)
+    setYear(Film.year)
+    setFormat(Film.format)
+    setStars(Film.stars)
+    setStarInput("");
+  }, [Film])
+  const addStarToArr =() => {
+    
+    if(StarInput.trim().match(regex))
+      alert ( "Star has bad chars somewhere");
+    if(StarInput.trim().length> 0){
+    setStars([...Stars,StarInput.trim()])
+      setStarInput("")
+     
+
+  }
+  setStarInput("")
+
+  }
+  const updatePage = () => {
+    let variables = {
+      filmId: filmId,
+
+    }
+    if(redux?.userData?._id)
+    axios.post(`${FILM_SERVER}/getfilm`,variables)
+        .then(response => {
+          if(redux?.userData?._id == response?.data[0]?.writer._id){
+          setFilm(response.data[0])
+          console.log(response.data[0])
+          }
+          else{
+            props.history.push('/')
+          }              
+          })
+  }
+
+  const onSubmit = () => {
+    const variables = {
+      _id: Film._id,
+      writer: Film.writer._id,
+      title: Title,
+      year: Year,
+      format: Format,
+      stars: Stars
+  }
+  console.log(variables)
+  axios.post(`${FILM_SERVER}/update/film/${filmId}`, variables)
+  .then(response => {
+    alert(response.data.message)
+    if(response?.data?.data)
+    setFilm(response.data.data)
   })
       
 
   }
+  const [Important, setImportant] =useState(false)
 
+  const deleteStar = (star) => {
+    let newStars = Stars
+    newStars.splice(star, 1);
+    setImportant(!Important)
+    return newStars
+  }
+  const onDelete = () => {
+    axios.delete(`${FILM_SERVER}/delete/film/${filmId}`)
+  .then(response => {
+    alert(response.data.message)
+    if(response?.data?.success)
+    props.history.push('/')
+
+  })
+  }
   return (
-  Product.length !== 0  ?
+    <div className="upload-product">
+    <h2 className="upload-logo">Uploading</h2>
 
-  <div className="detail-page">
-    <div  className="detail-page-body">
-    <div className="detail-page-logo">
-      {Product.title}
-    </div>
-    <div className="detail-page-body-image">
-    <div id={"carouselProductControls"} className="carousel slide carousel-fade" data-ride="carousel">
-           <div className="carousel-inner">
-           {Product.images.map((image, index) => (
-                                     <div key={index+image} className={`d-flex flex-wrap align-items-center align-content-center carousel-item ${index === 0 ? "active" : ""}`}>
-                                         <img className="d-block my-auto mx-auto carusel-product-image" 
-                                             src={(image.substring(0, 7) === 'uploads') ? `${config.MAGIC_HOST}/${image}` : `${image}`} alt="productImage" />
-                                     </div>
-                                 ))}
-           </div>
-           {Product.images.length > 1 ? <>
-           <a className="carousel-control carousel-control-prev" href={"#carouselProductControls"} role="button" data-slide="prev">
-           <i className="fas fa-angle-left"></i>
-           </a>
-           <a className="carousel-control carousel-control-next" href={"#carouselProductControls"} role="button" data-slide="next">
-           <i className="fas fa-angle-right"></i>
-           </a>
-           </> : null
-         }
-         </div>
-      </div>
-      <div className="detail-page-description mb-2">{Product.description}</div>
-         <div className="detail-page-type mb-2">Type: {TypesOfFilm.map((from_client) =>
-            from_client.weapon === Product.weapon ? from_client.value : null
-         )}</div>
-         <div className="detail-page-type mb-2">Seller: {Product.writer.email}</div>
-         <div className="detail-page-price">{Product.price} $</div>
-         <div className="detail-page-btns-for-cart">
-          { was_in_cart = 0,
-          props.redux.userData && props.redux.userData.cart &&
-                        props.redux.userData.cart.map((product_in_cart) => product_in_cart.id === Product._id ? was_in_cart = 1 : null),
-                        was_in_cart === 1    ? <div className="detail-page-btn-action-with-cart">
-          <div className="detail-page-btn-actions">
-          <div className="detail-page-btn-action-add header-list-action" onClick={() => dispatch(addToCart(Product._id))}>+</div>
-          <div className="cart-header-block-list-count">{count_in_cart}</div>
-          <div className="detail-page-btn-action-decr header-list-action" onClick={() => dispatch(decriseFromCart(productId))}>-</div>
-          <div className="cart-header-block-list-remove header-list-action" onClick={() => dispatch(cleanCart(productId))}><i className="fa fa-trash"></i></div>
-          </div>
-            <a className="detail-page-btn-action-goto-cart" href="/cart">Buy</a>
+    <Form className="upload-form" >
 
-          </div> :
-          <div className="detail-page-btn-add-to-cart">
-            <button onClick={() => dispatch(addToCart(Product._id))}>
-               Add to cart
-            </button>
-          </div>}
-         </div>
-         </div>
-         <div className="detail-page-coments">
-         <div className="detail-page-coments-input-and-btn">
-         <input className="detail-page-coments-input" value={CommentInput} onChange={(e) => setCommentInput(e.target.value)} />
-         <button onClick={submitComent} className="detail-page-coments-btn">Set comment</button>
-         </div>
-         {
-            Product.coments.length ?
-         <div className="coments">
-           {
-             Product.coments.map((c,index) => 
-           <div className="detail-page-coments-coment" key={index+c.who_write_comment}><div className="detail-page-coments-who_write_comment">{c.who_write_comment}</div><div className="detail-page-coments-comment">{c.comment}</div></div>
-            )
-           }
-         </div>: null
-         }
-     </div>
-  </div>: null
+              <div className="upload-input">
+              <label>Title</label>
+              <Input
+                  onChange={(e) => setTitle(e.target.value)}
+                  value={Title}
+              />
+              </div>
+              <div className="upload-input">
+
+              <label>Year</label>
+              <Input
+                  onChange={(e) => setYear(e.target.value)}
+                  value={Year == 0 ? "" : Year}
+                  type="number"
+              />
+              </div>
+              <div className="upload-input">
+
+              <label>Format</label>
+              <select onChange={(e) => setFormat(e.target.value)} value={Format}>
+                  {TypesOfFilm.map(item => (
+                      <option key={item.format} value={item.format}>{item.format} </option>
+                  ))}
+              </select>
+              </div>
+              <div className="upload-input">
+
+              <label>Stars</label>
+                    <Input 
+                    onChange={(e) => setStarInput(e.target.value)}
+                    value={StarInput}
+                    />
+              </div>
+              <button onClick={() => addStarToArr()}>add</button>
+                  <div >
+                    {Stars?.map((star, index) => <div key={index+Math.random()}>
+                    <div>{star}</div>
+                    <button onClick={() => {setStars( deleteStar(index)) }}>X</button>
+                    </div>)}
+                  </div>
+              <Button type="submit" className="submit-upload-btn"
+                  onClick={() => onSubmit()}
+              >
+                  Submit
+              </Button>
+              <Button type="submit" className="submit-upload-btn"
+                  onClick={() => onDelete()}
+              >
+                  Delete
+              </Button>      
+          </Form>
+  </div>
   )
   
 }
@@ -1351,7 +1372,7 @@ function SettingsPage (props) {
   const [SearchProducts, setSearchProducts] = useState([])
 
   const rmrfFromProducts = (idid) => {
-    axios.get(`/api/product/rmrfProduct?userId=${redux.userData._id}&productId=${idid}`).then(response => {
+    axios.get(`${FILM_SERVER}/rmrfProduct?userId=${redux.userData._id}&productId=${idid}`).then(response => {
       setProducts(response.data)
   })
   }
@@ -1359,7 +1380,7 @@ function SettingsPage (props) {
   const getUserProducts = (e) => {
     setSearchProducts(e.target.value)
 
-    axios.get(`/api/product/getUserProducts?userId=${redux.userData._id}&term=${e.target.value}`).then(response => {
+    axios.get(`${FILM_SERVER}/getUserProducts?userId=${redux.userData._id}&term=${e.target.value}`).then(response => {
       setProducts(response.data)
     })
 
@@ -1367,7 +1388,7 @@ function SettingsPage (props) {
 
   useEffect(() => {
     if(redux?.userData?._id){
-    axios.get(`/api/product/getUserProducts?userId=${redux.userData._id}`)
+    axios.get(`${FILM_SERVER}/getUserProducts?userId=${redux.userData._id}`)
         .then(response => {
               setProducts(response.data)
           })
@@ -1494,7 +1515,7 @@ function App(props) {
           <Route exact path="/register" component={Auth(RegisterPage, false)} />
           <Route exact path="/login" component={Auth(LoginPage, false)} />
           <Route exact path="/upload" component={Auth(UploadProductPage, true)} />
-          <Route exact path="/product/:productId" component={Auth(DetailProductPage, true)} />
+          <Route exact path="/film/:filmId" component={Auth(FilmPage, true)} />
           <Route exact path="/settings" component={Auth(SettingsPage, true)} />
           <Route path='*' exact={true} component={My404Component} />
         </Switch>
