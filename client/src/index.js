@@ -775,7 +775,22 @@ useEffect(() => {
       return elem.title.toLowerCase().indexOf(ShowName.toLowerCase()) != -1;
   });
   }
-  console.log(newShowArray)
+  if(ShowStar){
+    let ChangeShowArray = [];
+    for(let elm = 0; elm < newShowArray.length; elm++ ){
+      let l = 0;
+      for(let ooo = 0; ooo < newShowArray[elm].stars.length; ooo++){
+        if(newShowArray[elm].stars[ooo].toLowerCase().indexOf(ShowStar.toLowerCase()) != -1)
+        l = 1
+      }
+      if(l === 1)
+      ChangeShowArray.push(newShowArray[elm])
+    }
+    newShowArray = ChangeShowArray
+  }
+  
+
+  // console.log(newShowArray)
   // if(ShowStar){
   //   for(let )
   // }
