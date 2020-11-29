@@ -566,7 +566,7 @@ const getFilms = () => {
             <div className="filmCardYear">{film.year}</div>
             <div className="filmCardFormat">{film.format}</div>
         <ul className="filmCardStars">{film.stars.map((star, starindex) => <li key={starindex+ "_"+ index}>{star}</li>)}</ul>
-         {film.writer._id == redux.userData._id && <Link to={"/film/"+film._id}>Edit</Link>}
+         {film?.writer?._id == redux?.userData?._id && <Link to={"/film/"+film._id}>Edit</Link>}
 
           </div>)
         }
@@ -591,7 +591,7 @@ function FileUpload(props) {
           return str.trim();
       return null;
     });
-    // console.log(arrwithstrs)
+    console.log(arrwithstrs)
     let sendObj = [];
     let error ="";
     if(arrwithstrs.length % 4 != 0 || arrwithstrs.length == 0){

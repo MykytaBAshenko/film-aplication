@@ -437,7 +437,7 @@ userRouter.post("/register", (req, res) => {
 userRouter.post("/changePassword", (req, res) => {
     bcrypt.genSalt(saltRounds, function (err, salt) {
     bcrypt.hash(req.body.password, salt, function (err, new_pass) {
-        User.findOneAndUpdate({ _id: req.body.id }, { password: new_pass }, (err, doc) => {
+        User.useFindAndModify({ _id: req.body.id }, { password: new_pass }, (err, doc) => {
         if (err) return res.json({ success: false, err });
         return res.status(200).send({
             success: true
