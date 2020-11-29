@@ -1027,6 +1027,7 @@ function changePassword(dataToSubmit) {
 function SettingsPage (props) {
   let redux = useSelector(state => state.redux);
   const [Films, setFilms] = useState([])
+  const [FilmsInput, setFilmsInput] = useState("")
 
   // const rmrfFromProducts = (idid) => {
   //   axios.get(`${FILM_SERVER}/rmrfProduct?userId=${redux.userData._id}&productId=${idid}`).then(response => {
@@ -1035,14 +1036,25 @@ function SettingsPage (props) {
   // }
 
   const getUserProducts = () => {
-    axios.post(`${FILM_SERVER}/films`).then((res) => 
-      console.log(res.data.films)
+    axios.post(`${FILM_SERVER}/films`).then((res) => {
+      if(redux?.userData?._id)
+      {
+
+      let films = res.data.films.filter(film => film.writer._id == redux.userData._id)
+
+      if(FilmsInput)
+        films.filter(film => film.title == FilmsInput)
+      console.log(films)
+      setFilms(films)
+      // setFilmsInput("")
+      }
+  }
     )
   } 
 
   useEffect(() => {
     getUserProducts()
-  }, [redux])
+  }, [redux,FilmsInput])
 
   return (
 
@@ -1137,7 +1149,7 @@ function SettingsPage (props) {
             <h4 className="logo-setttings-delete-logo">Delete Your Products</h4>
 
             <div className="deleteBtns">
-              <input placeholder="Find your product"  onChange={(e) =>  getUserProducts(e)} />
+              <input placeholder="Find your product" value={FilmsInput}  onChange={(e) =>  setFilmsInput(e.target.value)} />
               {Films.map((item, index) => <div className="delete-row" key={index}>
                 {/* <div>{item.title}</div>
 <button onClick={() => rmrfFromProducts(item._id)}>
