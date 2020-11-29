@@ -576,7 +576,7 @@ const getFilms = () => {
     </div>
   )
 }
-const regex = /[.*+?^${}()|[\]\\]/g
+const regex = /[.*+:?^${}()|[\]\\]/g
 function FileUpload(props) {
   const [InnerFile, setInnerFile] = useState('')
   const [MainObj, setMainObj] = useState([])
@@ -752,6 +752,9 @@ function UploadProductPage(props) {
       if((new Date()).getFullYear() >= Year&& Year <= 1850){
         return alert('Year isn`t correct')
       }
+      if(Title.trim().match(regex)){
+        return alert('Title bad')
+      }
       const variables = {
           writer: props.redux.userData._id,
           title: Title,
@@ -777,13 +780,9 @@ function UploadProductPage(props) {
     
     if(StarInput.trim().match(regex))
       alert ( "Star has bad chars somewhere");
-    if(StarInput.trim().length> 0){
+    else if(StarInput.trim().length> 0)
     setStars([...Stars,StarInput.trim()])
-      setStarInput("")
-     
-
-  }
-  setStarInput("")
+    setStarInput("")
 
   }
   const deleteStar = (star) => {
