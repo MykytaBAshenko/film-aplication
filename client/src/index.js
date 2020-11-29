@@ -999,25 +999,6 @@ if(Title.trim().match(regex)){
               </div>
               <div className="upload-input">
 
-              <label>Stars</label>
-                    <Input 
-                    onChange={(e) => setStarInput(e.target.value)}
-                    value={StarInput}
-                    />
-              </div>
-              <button onClick={() => addStarToArr()}>add</button>
-                  <div >
-                    {Stars?.map((star, index) => <div key={index+Math.random()}>
-                    <div>{star}</div>
-                    <button onClick={() => {setStars( deleteStar(index)) }}>X</button>
-                    </div>)}
-                  </div>
-
-
-                  {/* 
-                  
-                  <div className="upload-input">
-
                 <label>Stars</label>
                       <div className="star-input"><Input 
                       onChange={(e) => setStarInput(e.target.value)}
@@ -1028,13 +1009,14 @@ if(Title.trim().match(regex)){
                       
                 </div>
                     <div className="starsMap">
-                      {Stars.map((star, index) => <div className="starRow" key={index+Math.random()}>
+                     {Stars&&Stars.map((star, index) => <div className="starRow" key={index+Math.random()}>
                       <div>{star}</div>
                       <button onClick={() => {setStars( deleteStar(index)) }}>X</button>
-                      </div>)}
+                      </div>)} 
+                      
                     </div>
-                  
-                  */}
+
+
               <Button type="submit" className="submit-upload-btn"
                   onClick={() => onSubmit()}
               >
