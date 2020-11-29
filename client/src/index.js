@@ -199,22 +199,6 @@ function NavBar(props) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function RegisterPage(props) {
   const dispatch = useDispatch();
   return (
