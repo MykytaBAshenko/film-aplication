@@ -111,29 +111,6 @@ let auth = (req, res, next) => {
 
 
 
-// const paymentSchema = mongoose.Schema({
-//   user: {
-//       type: Array,
-//       default: []
-//   },
-//   data: {
-//       type: Array,
-//       default: []
-//   },
-//   product: {
-//       type: Array,
-//       default: []
-//   }
-
-
-// }, { timestamps: true })
-
-
-
-
-// const Payment = mongoose.model('Payment', paymentSchema);
-
-
 
 const filmSchema = mongoose.Schema({
   writer: {
@@ -177,24 +154,6 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 
-// var storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//       cb(null, 'uploads/')
-//   },
-//   filename: (req, file, cb) => {
-//       cb(null, `${Date.now()}_${file.originalname}`)
-//   },
-//   fileFilter: (req, file, cb) => {
-//       const ext = path.extname(file.originalname)
-//       if (ext !== '.jpg' || ext !== '.png') {
-//           return cb(res.status(400).end('only jpg, png are allowed'), false);
-//       }
-//       cb(null, true)
-//   }
-// })
-
-// var upload = multer({ storage: storage }).single("file")
-
 
 filmRouter.post("/upload/films",auth,   (req, res) => {
     for(let j = 0; j < req.body.length;j++){
@@ -205,18 +164,9 @@ filmRouter.post("/upload/films",auth,   (req, res) => {
           console.log(err);
           res.json(err)
         } else {
-          res.json('films added!')
-          console.log('film added!');
+          res.json('Films added!')
         }
       });
-    
-//     const product = new Product(req.body)
-  
-//     product.save((err) => {
-//         if (err) return res.status(400).json({ success: false, err })
-//         return res.status(200).json({ success: true })
-//     })
-  
   });
   
   filmRouter.post("/upload/film",auth,   (req, res) => {
@@ -257,7 +207,6 @@ filmRouter.post("/update/film/:id",auth, async (req, res) => {
        film.save().then(() =>{return  res.status(200).json({ success: true, message:"film Updated"})})
        .catch(err => res.status(400).json({ success: false, message:`Error ${err}`}));
     }).catch((err) => res.status(400).json({ success: false, message:`Error ${err}` }))
-    // return res.status(500).send({ message: ' Error in updating project.' });
       })    ; 
 
 
@@ -267,92 +216,7 @@ filmRouter.post("/films", (req, res) => {
                         if (err) return res.status(400).json({ success: false, err })
                         res.status(200).json({ success: true, films})
                     })
-    // let sortBy = "_id";
-    // let order =  "desc";
-    // if(req.body.SortBy == 'From cheap to expensive') {
-    //     sortBy = 'price'
-    //     order = "asc"
-    // } else if(req.body.SortBy == "From expensive to cheap"){
-    //     sortBy = 'price'
-    //     order = "desc"
-    // } 
-    // let limit = req.body.limit ? parseInt(req.body.limit) : 100;
-    // let skip = parseInt(req.body.skip);
-
-    // let findArgs = {};
-    // let term = req.body.searchTerm;
-    // let low = req.body.min_price || 0;
-    // let max = req.body.max_price || Infinity;
-    // let find_weapon = []
-    // let weapons_was = 0;
-    // if(req.body.weapon)
-    // for(var x = 0; x < req.body.weapon.length; x++){
-    //     if(req.body.weapon[x]){
-    //         find_weapon.push(x)
-    //         weapons_was = 1;
-    //     }
-    // }
-    // let weapon = [];
-    // if(weapons_was) {
-    //     weapon = find_weapon
-    //     findArgs = {
-    //         price: {
-    //             $gte: low,
-    //             $lte: max
-    //         },
-    //         weapon: weapon
-    //     }
-    // }
-    // if(!weapons_was) {
-    //     weapon = find_weapon
-    //     findArgs = {
-    //         price: {
-    //             $gte: low,
-    //             $lte: max
-    //         }
-    //     }
-    // }
-
-
-    // let maxPrice;
-    // var vsegoTovara;
-    // const send_on_client = async () => {
-    //     if(term)
-    //         maxPrice = await Product.find(findArgs).find({ "title": { "$regex": term, "$options": "i" }}).sort({ price: -1 }).limit(1);
-    //     else
-    //         maxPrice = await Product.find(findArgs).sort({ price: -1 }).limit(1);
-    //     if(term)
-    //     vsegoTovara = (await Product.find(findArgs).find({ "title": { "$regex": term, "$options": "i" }})).length;
-    //     else
-    //     vsegoTovara =  (await Product.find(findArgs)).length;
-
-    //     if (term) {
-    //         Product.find(findArgs)
-    //             .find({ "title": { "$regex": term, "$options": "i" }})
-    //             .populate("writer")
-    //             .sort([[sortBy, order]])
-    //             .skip(skip)
-    //             .limit(limit)
-    //             .exec((err, products) => {
-    //                 if (err){ return res.status(400).json({ success: false, err })}
-    //                 res.status(200).json({ success: true, products, postSize: vsegoTovara, maxPrice:maxPrice})
-    //             })
-    //     } else {
-            
-    //         Product.find(findArgs)
-    //             .populate("writer")
-    //             .sort([[sortBy, order]])
-    //             .skip(skip)
-    //             .limit(limit)
-    //             .exec((err, products) => {
-    //                 if (err) return res.status(400).json({ success: false, err })
-    //                 res.status(200).json({ success: true, products, postSize: vsegoTovara, maxPrice:maxPrice })
-    //             })
-    //     }
-
-    // }
-    // send_on_client()
-
+   
     
 
       
@@ -367,24 +231,6 @@ filmRouter.post("/getfilm", (req, res) => {
           return res.status(200).send(film)
       })
 });
-
-// filmRouter.get("/getUserProducts", (req, res) => {
-//     let userId = req.query.userId
-//     let term = req.query.term
-    
-//     if(term)
-//     Product.find({writer: userId}).find({ "title": { "$regex": term, "$options": "i" }}).exec((err, products) => {
-//         if(err) return res.status(400).send(err)
-//         res.status(200).send(products)
-//     })
-//     else{
-//         Product.find({writer: userId}).exec((err, products) => {
-//             if(err) return res.status(400).send(err)
-//             res.status(200).send(products)
-//         })
-//     }
- 
-//   });  
 
 
   filmRouter.delete("/delete/film/:filmId",auth, (req, res) => {
@@ -471,12 +317,6 @@ userRouter.get("/logout", auth, (req, res) => {
 });
 
 userRouter.delete("/delete/acc", auth, (req, res) => {
-    // User.findOneAndUpdate({ _id: req.user._id }, { token: "", tokenExp: "" }, (err, doc) => {
-    //     if (err) return res.json({ success: false, err });
-    //     return res.status(200).send({
-    //         success: true
-    //     });
-    // });
     User.findOne({ _id: req.user._id }, (err, user) => {
         if (!user)
             return res.json({

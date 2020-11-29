@@ -31,10 +31,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 axios.defaults.baseURL = config.MAGIC_HOST
 axios.defaults. withCredentials= true
-let allow_in1sec = 1;
-setInterval(() => {
-    allow_in1sec = 1;
-}, 30);
+
 
 const LOGIN_USER = 'login_user';
 const REGISTER_USER = 'register_user';
@@ -67,7 +64,6 @@ const rootReducer = combineReducers({
   redux
 });
 
-// user_actions
 
 
 function registerUser(dataToSubmit) {
@@ -160,7 +156,7 @@ function NavBar(props) {
 <div className="">
   <div className="yellow-line">
     <nav className="navbar   navbar-expand-lg ">
-  <a href="/" className="navbar-brand">GunstaSHOP</a>
+  <a href="/" className="navbar-brand">FilmAPP</a>
   <button className="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
     <i className="fas fa-bars"></i>
   </button>
@@ -251,7 +247,6 @@ function RegisterPage(props) {
             email: values.email,
             password: values.password,
             name: values.name,
-            image: `http://gravatar.com/avatar/${moment().unix()}?d=identicon`
           };
           dispatch(registerUser(dataToSubmit)).then(response => {
             if (response.payload.success) {
@@ -485,11 +480,7 @@ const TypesOfFilm = [
   {  format: "DVD" },
   { format: "Blu-Ray" },
 ]
-const SortBye = [
-  { sby: 0, value: "Default" },
-  { sby: 1, value: "From cheap to expensive" },
-  { sby: 2, value: "From expensive to cheap" },
-]
+
 function LandingPage(props) {
 
 const [FilmsFromServer,setFilmsFromServer] = useState([]);
@@ -556,11 +547,13 @@ const getFilms = () => {
 }
 
   return(
-    <div className="main-page-store-shell">
+    <div className="landing-page">
+        <div className="landing-page-control">
       <input placeholder="star" value={ShowStar} onChange={(e) => setShowStar(e.target.value)}></input>
       <input placeholder="title" value={ShowName} onChange={(e) => setShowName(e.target.value)}></input>
       <button onClick={() => setShowOnlyMine(!ShowOnlyMine)}>{ShowOnlyMine ?  "Show all" :  "Show only mine"}</button>
       <button onClick={() => setSortByName(!SortByName)}>{SortByName ?  "Don`t sort by title" :  "Sort by title"}</button>
+      </div>
       <div className="mapofFilms">
         {
           ShowFilms.map((film, index) => <div key={index} className="filmCard">
@@ -568,17 +561,16 @@ const getFilms = () => {
             <div className="filmCardYear">{film.year}</div>
             <div className="filmCardFormat">{film.format}</div>
         <ul className="filmCardStars">{film.stars.map((star, starindex) => <li key={starindex+ "_"+ index}>{star}</li>)}</ul>
-         {film?.writer?._id == redux?.userData?._id && <Link to={"/film/"+film._id}>Edit</Link>}
+         {film?.writer?._id == redux?.userData?._id && <div className="editBtnBlock"><Link className="filmCardEdit" to={"/film/"+film._id}>Edit</Link></div>}
 
           </div>)
         }
 
       </div>
- 
     </div>
   )
 }
-const regex = /[.*+:?^${}()|[\]\\]/g
+const regex = /[.*+:%@#!\/?^${}()|[\]\\]/g
 function FileUpload(props) {
   const [InnerFile, setInnerFile] = useState('')
   const [MainObj, setMainObj] = useState([])
@@ -619,7 +611,13 @@ function FileUpload(props) {
                 if(arrwithstrs[x].length > 'Release Year:'.length){
                     if (Number.isInteger(Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())) &&
                         arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())
+                          if(((new Date().getFullYear()) >= Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())) && (Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())>= 1850))
                             ObjectForSend.year = arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim();
+                          else{
+                            error =  "Wrong year";
+                            let gg =new Date()
+                            console.log(gg.getFullYear(),Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim()), Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim()) )
+                          }
                     else
                     error =  "Release Year is not a number somewhere";
                 }
@@ -694,20 +692,23 @@ function FileUpload(props) {
 
 const uploadFile = () => {
     axios.post(`${FILM_SERVER}/upload/films`,MainObj)
-    .then(res => setSuccesUpload (res.data.toString()))
+    .then(res => {alert(res.data.toString())
+    setSuccesFile("")
+    setErrorFile("")
+    })
 }
   return (
     <>
       <div className="image-uploader" >
         {
           SuccesFile &&
-        <div>
+        <div className="AllOkUpload">
           {SuccesFile}
         </div>
 }
 {
           ErrorFile &&
-        <div>
+        <div className="ErrorUpload">
           {ErrorFile}
         </div>
 }
@@ -727,8 +728,8 @@ const uploadFile = () => {
               )}
           </Dropzone>
           {SuccesFile &&
-                <button onClick={() => uploadFile()}>
-asd
+                <button className="submit_file" onClick={() => uploadFile()}>
+submit file
                 </button>
 }
       </div>
@@ -744,7 +745,6 @@ function UploadProductPage(props) {
     const [Stars, setStars] = useState([])
 
     const onSubmit = (event) => {
-      // event.preventDefault();
       console.log(Title, Year, Format, Stars, (new Date()).getFullYear())
 
       if (!Title || !Year  || !Format ||
@@ -768,7 +768,9 @@ function UploadProductPage(props) {
           .then(response => {
               if (response.data.success) {
                   alert('Product Successfully Uploaded')
-                  // props.history.push('/')
+                  setTitle("")
+                  setYear(0)
+                  setStars([])
               } else {
                   alert('Failed to upload Product')
               }
@@ -831,14 +833,16 @@ function UploadProductPage(props) {
                 <div className="upload-input">
 
                 <label>Stars</label>
-                      <Input 
+                      <div className="star-input"><Input 
                       onChange={(e) => setStarInput(e.target.value)}
                       value={StarInput}
                       />
-                </div>
                 <button onClick={() => addStarToArr()}>add</button>
-                    <div >
-                      {Stars.map((star, index) => <div key={index+Math.random()}>
+                      </div>
+                      
+                </div>
+                    <div className="starsMap">
+                      {Stars.map((star, index) => <div className="starRow" key={index+Math.random()}>
                       <div>{star}</div>
                       <button onClick={() => {setStars( deleteStar(index)) }}>X</button>
                       </div>)}
@@ -846,7 +850,8 @@ function UploadProductPage(props) {
                 <Button type="submit" className="submit-upload-btn"
                     onClick={() => onSubmit()}
                 >
-                    Submit
+                    
+upload movie
                 </Button>
 
             </Form>
@@ -888,17 +893,14 @@ function FilmPage(props){
     setStarInput("");
   }, [Film])
   const addStarToArr =() => {
-    
-    if(StarInput.trim().match(regex))
-      alert ( "Star has bad chars somewhere");
-    if(StarInput.trim().length> 0){
+    if(StarInput.trim().length> 0 && !StarInput.trim().match(regex)){
     setStars([...Stars,StarInput.trim()])
-      setStarInput("")
+    return  setStarInput("")
      
 
   }
   setStarInput("")
-
+  return alert ( "Star has bad chars somewhere or empty");
   }
   const updatePage = () => {
     let variables = {
@@ -927,6 +929,16 @@ function FilmPage(props){
       format: Format,
       stars: Stars
   }
+  if (!Title || !Year  || !Format ||
+    Stars.length == 0 ) {
+    return alert('Fill all the fields first!')
+}
+if((new Date()).getFullYear() >= Year&& Year <= 1850){
+  return alert('Year isn`t correct')
+}
+if(Title.trim().match(regex)){
+  return alert('Title bad')
+}
   console.log(variables)
   axios.post(`${FILM_SERVER}/update/film/${filmId}`, variables)
   .then(response => {
@@ -956,7 +968,7 @@ function FilmPage(props){
   }
   return (
     <div className="upload-product">
-    <h2 className="upload-logo">Uploading</h2>
+    <h2 className="upload-logo">Film editing</h2>
 
     <Form className="upload-form" >
 
@@ -1000,6 +1012,29 @@ function FilmPage(props){
                     <button onClick={() => {setStars( deleteStar(index)) }}>X</button>
                     </div>)}
                   </div>
+
+
+                  {/* 
+                  
+                  <div className="upload-input">
+
+                <label>Stars</label>
+                      <div className="star-input"><Input 
+                      onChange={(e) => setStarInput(e.target.value)}
+                      value={StarInput}
+                      />
+                <button onClick={() => addStarToArr()}>add</button>
+                      </div>
+                      
+                </div>
+                    <div className="starsMap">
+                      {Stars.map((star, index) => <div className="starRow" key={index+Math.random()}>
+                      <div>{star}</div>
+                      <button onClick={() => {setStars( deleteStar(index)) }}>X</button>
+                      </div>)}
+                    </div>
+                  
+                  */}
               <Button type="submit" className="submit-upload-btn"
                   onClick={() => onSubmit()}
               >
@@ -1051,9 +1086,7 @@ function SettingsPage (props) {
 
       if(FilmsInput)
         films.filter(film => film.title == FilmsInput)
-      console.log(films)
       setFilms(films)
-      // setFilmsInput("")
       }
   }
     )
@@ -1108,12 +1141,10 @@ function SettingsPage (props) {
           values,
           touched,
           errors,
-          dirty,
           isSubmitting,
           handleChange,
           handleBlur,
           handleSubmit,
-          handleReset,
         } = props;
         return (
           <div className="settings-app">
