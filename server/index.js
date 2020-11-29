@@ -152,9 +152,8 @@ app.use(cookieParser());
 
 
 filmRouter.post("/upload/films", auth, (req, res) => {
-    for (let j = 0; j < req.body.length; j++) {
+    for (let j = 0; j < req.body.length; j++)
         req.body[j].writer = mongoose.Types.ObjectId(req.body[j].writer)
-    }
     Film.collection.insert(req.body, function (err, docs) {
         if (err) {
             console.log(err);
@@ -166,9 +165,6 @@ filmRouter.post("/upload/films", auth, (req, res) => {
 });
 
 filmRouter.post("/upload/film", auth, (req, res) => {
-
-
-
     const film = new Film(req.body)
     film.writer = mongoose.Types.ObjectId(req.body.writer)
     film.save((err) => {
@@ -179,7 +175,6 @@ filmRouter.post("/upload/film", auth, (req, res) => {
 });
 
 filmRouter.post("/uploadImage", auth, (req, res) => {
-
     upload(req, res, err => {
         if (err) {
             return res.json({ success: false, err })
@@ -248,7 +243,6 @@ userRouter.get("/auth", auth, (req, res) => {
 });
 
 userRouter.post("/register", (req, res) => {
-
     const user = new User(req.body);
 
     user.save((err, doc) => {

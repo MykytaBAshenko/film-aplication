@@ -468,7 +468,7 @@ function LandingPage(props) {
   const [ShowFilms, setShowFilms] = useState([])
   const [ShowStar, setShowStar] = useState("");
   const [ShowName, setShowName] = useState("");
-  const [SortByName, setSortByName] = useState(false);
+  const [SortByName, setSortByName] = useState(0);
   const [ShowOnlyMine, setShowOnlyMine] = useState(false);
   let redux = useSelector(state => state.redux);
   const UserId = redux?.userData?._id
@@ -480,7 +480,6 @@ function LandingPage(props) {
   }, [])
 
 
-  let ll = 0;
   useEffect(() => {
     let newShowArray = JSON.parse(JSON.stringify(FilmsFromServer));
     console.log(newShowArray)
@@ -511,11 +510,15 @@ function LandingPage(props) {
       }
       newShowArray = ChangeShowArray
     }
-    if (SortByName) {
+    if (SortByName === 1) {
 
       newShowArray.sort((a, b) => (a.title.toUpperCase() > b.title.toUpperCase()) ? 1 : (a.title.toUpperCase() === b.title.toUpperCase()) ? 0 : -1)
     }
 
+    if (SortByName === -1) {
+
+      newShowArray.sort((a, b) => (a.title.toUpperCase() > b.title.toUpperCase()) ? -1 : (a.title.toUpperCase() === b.title.toUpperCase()) ? 0 : 1)
+    }
     setShowFilms(newShowArray)
   }, [redux, ShowOnlyMine, SortByName, ShowName, ShowStar])
 
@@ -527,13 +530,25 @@ function LandingPage(props) {
       })
   }
 
+  const setSorting = () => {
+    if (SortByName === 0) {
+      setSortByName(1)
+    }
+    else if (SortByName === 1) {
+      setSortByName(-1)
+    }
+    else
+      setSortByName(0)
+
+  }
+
   return (
     <div className="landing-page">
       <div className="landing-page-control">
         <input placeholder="star" value={ShowStar} onChange={(e) => setShowStar(e.target.value)}></input>
         <input placeholder="title" value={ShowName} onChange={(e) => setShowName(e.target.value)}></input>
         <button onClick={() => setShowOnlyMine(!ShowOnlyMine)}>{ShowOnlyMine ? "Show all" : "Show only mine"}</button>
-        <button onClick={() => setSortByName(!SortByName)}>{SortByName ? "Don`t sort by title" : "Sort by title"}</button>
+        <button onClick={() => setSorting()}>{SortByName === -1 ? "Don`t sort by title" : SortByName === 0 ? "Sort by title in asc order" : "Sort by title in desc order"}</button>
       </div>
       <div className="mapofFilms">
         {
