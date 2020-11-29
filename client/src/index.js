@@ -1,15 +1,14 @@
-import React, { Suspense,useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 import { BrowserRouter, Route, Switch, Link } from "react-router-dom";
 import { Provider, useSelector, useDispatch } from 'react-redux';
-import { createStore, applyMiddleware, combineReducers  } from 'redux';
+import { createStore, applyMiddleware, combineReducers } from 'redux';
 import promiseMiddleware from 'redux-promise';
 import ReduxThunk from 'redux-thunk';
 import { Icon } from 'antd';
 import axios from 'axios';
-import moment from "moment";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import Dropzone from 'react-dropzone';
@@ -19,18 +18,18 @@ import {
   Input,
   Button,
 } from 'antd';
-
+const regex = /[.*+:%@#!\/?^${}()|[\]\\]/g
 const config = {
   MAGIC_HOST: ""
 };
 
 if (process.env.NODE_ENV === 'production') {
-  config.MAGIC_HOST=window.location.origin
+  config.MAGIC_HOST = window.location.origin
 } else {
-  config.MAGIC_HOST='http://localhost:5000';
+  config.MAGIC_HOST = 'http://localhost:5000';
 }
 axios.defaults.baseURL = config.MAGIC_HOST
-axios.defaults. withCredentials= true
+axios.defaults.withCredentials = true
 
 
 const LOGIN_USER = 'login_user';
@@ -43,20 +42,20 @@ const FILM_SERVER = '/api/film';
 
 
 
- function redux (state = {}, action) {
+function redux(state = {}, action) {
 
   switch (action.type) {
-      case REGISTER_USER:
-          return { ...state, register: action.payload }
-      case LOGIN_USER:
-          return { ...state, loginSucces: action.payload }
-      case AUTH_USER:
-          return { ...state, userData: action.payload }
-      case LOGOUT_USER:
-          return { ...state }
- 
-      default:
-          return state;
+    case REGISTER_USER:
+      return { ...state, register: action.payload }
+    case LOGIN_USER:
+      return { ...state, loginSucces: action.payload }
+    case AUTH_USER:
+      return { ...state, userData: action.payload }
+    case LOGOUT_USER:
+      return { ...state }
+
+    default:
+      return state;
   }
 }
 
@@ -68,32 +67,32 @@ const rootReducer = combineReducers({
 
 function registerUser(dataToSubmit) {
   const request = axios.post(`${USER_SERVER}/register`, dataToSubmit)
-      .then(response => response.data);
+    .then(response => response.data);
 
   return {
-      type: REGISTER_USER,
-      payload: request
+    type: REGISTER_USER,
+    payload: request
   }
 }
 
 
 function loginUser(dataToSubmit) {
   const request = axios.post(`${USER_SERVER}/login`, dataToSubmit)
-      .then(response => response.data);
+    .then(response => response.data);
 
   return {
-      type: LOGIN_USER,
-      payload: request
+    type: LOGIN_USER,
+    payload: request
   }
 }
 
 function auth() {
   const request = axios.get(`${USER_SERVER}/auth`)
-      .then(response => response.data);
+    .then(response => response.data);
 
   return {
-      type: AUTH_USER,
-      payload: request
+    type: AUTH_USER,
+    payload: request
   }
 }
 
@@ -102,36 +101,36 @@ function auth() {
 
 
 
-function Auth (ComposedClass, reload, adminRoute = null) {
+function Auth(ComposedClass, reload, adminRoute = null) {
   function AuthenticationCheck(props) {
 
-      let redux = useSelector(state => state.redux);
-      const dispatch = useDispatch();
+    let redux = useSelector(state => state.redux);
+    const dispatch = useDispatch();
 
-      useEffect(() => {
+    useEffect(() => {
 
-          dispatch(auth()).then(async response => {
-              if (await !response.payload.isAuth) {
-                  if (reload) {
-                      props.history.push('/login')
-                  }
-              } else {
-                  if (adminRoute && !response.payload.isAdmin) {
-                      props.history.push('/')
-                  }
-                  else {
-                      if (reload === false) {
-                          props.history.push('/')
-                      }
-                  }
-              }
-          })
-          
-      }, [dispatch, props.history])
+      dispatch(auth()).then(async response => {
+        if (await !response.payload.isAuth) {
+          if (reload) {
+            props.history.push('/login')
+          }
+        } else {
+          if (adminRoute && !response.payload.isAdmin) {
+            props.history.push('/')
+          }
+          else {
+            if (reload === false) {
+              props.history.push('/')
+            }
+          }
+        }
+      })
 
-      return (
-          <ComposedClass {...props} redux={redux} />
-      )
+    }, [dispatch, props.history])
+
+    return (
+      <ComposedClass {...props} redux={redux} />
+    )
   }
   return AuthenticationCheck
 }
@@ -140,7 +139,7 @@ const createStoreWithMiddleware = applyMiddleware(promiseMiddleware, ReduxThunk)
 
 
 function NavBar(props) {
- 
+
   const logoutHandler = () => {
     axios.get(`${USER_SERVER}/logout`).then(response => {
       if (response.status === 200) {
@@ -151,50 +150,50 @@ function NavBar(props) {
     });
   };
   let redux = useSelector(state => state.redux);
-  return(
+  return (
     <>
-<div className="">
-  <div className="yellow-line">
-    <nav className="navbar   navbar-expand-lg ">
-  <a href="/" className="navbar-brand">FilmAPP</a>
-  <button className="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
-    <i className="fas fa-bars"></i>
-  </button>
-  <div className="collapse navbar-collapse" id="navbarCollapse">
-      {((redux.userData && !redux.userData.isAuth )) ?
-       <ul className="navbar-nav ml-auto">
-        <li className="navbar-item">
-          <a href="/login" className="nav-link">Signin</a>
-        </li>
-        <li className="navbar-item">
-          <a href="/register" className="nav-link">Signup</a>
-        </li>
-      </ul>
-      :
-      <ul className="navbar-nav ml-auto">
-        <li className="navbar-item">
-          <a href="/" className="nav-link">Films</a>
-        </li>
-        <li className="navbar-item">
-          <Link to="/upload" className="nav-link">Upload</Link>
-        </li>
-        <li className="navbar-item">
-          <a href="/settings" className="nav-link">Settings</a>
-        </li>
-        <li className="navbar-item">
-          <a onClick={logoutHandler} className="nav-link">Log out</a>
-        </li>
-        
-      
-      </ul>
-}
-  </div>
-</nav>
-</div>
+      <div className="">
+        <div className="yellow-line">
+          <nav className="navbar   navbar-expand-lg ">
+            <a href="/" className="navbar-brand">FilmAPP</a>
+            <button className="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+              <i className="fas fa-bars"></i>
+            </button>
+            <div className="collapse navbar-collapse" id="navbarCollapse">
+              {((redux.userData && !redux.userData.isAuth)) ?
+                <ul className="navbar-nav ml-auto">
+                  <li className="navbar-item">
+                    <a href="/login" className="nav-link">Signin</a>
+                  </li>
+                  <li className="navbar-item">
+                    <a href="/register" className="nav-link">Signup</a>
+                  </li>
+                </ul>
+                :
+                <ul className="navbar-nav ml-auto">
+                  <li className="navbar-item">
+                    <a href="/" className="nav-link">Films</a>
+                  </li>
+                  <li className="navbar-item">
+                    <Link to="/upload" className="nav-link">Upload</Link>
+                  </li>
+                  <li className="navbar-item">
+                    <a href="/settings" className="nav-link">Settings</a>
+                  </li>
+                  <li className="navbar-item">
+                    <a onClick={logoutHandler} className="nav-link">Log out</a>
+                  </li>
 
 
-</div>
-</>
+                </ul>
+              }
+            </div>
+          </nav>
+        </div>
+
+
+      </div>
+    </>
   )
 }
 
@@ -252,7 +251,7 @@ function RegisterPage(props) {
             if (response.payload.success) {
               props.history.push("/login");
             } else {
-              alert(response.payload.err.errmsg)
+              alert("Sign up error")
             }
           })
 
@@ -265,19 +264,17 @@ function RegisterPage(props) {
           values,
           touched,
           errors,
-          dirty,
           isSubmitting,
           handleChange,
           handleBlur,
           handleSubmit,
-          handleReset,
         } = props;
         return (
           <div className="register-form-app">
             <h2>Sign up</h2>
             <Form autoComplete="off" className="register-form" onSubmit={handleSubmit} >
 
-              <Form.Item required className={errors.name && touched.name ?"form-item error" : "form-item"} label="Name">
+              <Form.Item required className={errors.name && touched.name ? "form-item error" : "form-item"} label="Name">
                 <Input
                   id="name"
                   placeholder="Enter your name"
@@ -293,7 +290,7 @@ function RegisterPage(props) {
                   <div className="input-feedback">{errors.name}</div>
                 )}
               </Form.Item>
-              <Form.Item required className={errors.email && touched.email ?"form-item error" : "form-item"} label="Email">
+              <Form.Item required className={errors.email && touched.email ? "form-item error" : "form-item"} label="Email">
                 <Input
                   id="email"
                   placeholder="Enter your email address for contact with you"
@@ -309,7 +306,7 @@ function RegisterPage(props) {
                   <div className="input-feedback">{errors.email}</div>
                 )}
               </Form.Item>
-              <Form.Item required className={errors.password && touched.password ?"form-item error" : "form-item"} label="Password">
+              <Form.Item required className={errors.password && touched.password ? "form-item error" : "form-item"} label="Password">
                 <Input
                   id="password"
                   autoComplete="new-password"
@@ -327,7 +324,7 @@ function RegisterPage(props) {
                 )}
               </Form.Item>
 
-              <Form.Item required className={errors.confirmPassword && touched.confirmPassword ?"form-item error" : "form-item"} label="Confirm Password">
+              <Form.Item required className={errors.confirmPassword && touched.confirmPassword ? "form-item error" : "form-item"} label="Confirm Password">
                 <Input
                   id="confirmPassword"
                   placeholder="Submit Password"
@@ -399,11 +396,11 @@ function LoginPage(props) {
                 }
                 props.history.push("/");
               } else {
-                setFormErrorMessage('Check out your Account or Password again')
+                alert(response.payload.message)
               }
             })
             .catch(err => {
-              setFormErrorMessage('Check out your Account or Password again')
+              alert(err)
               setTimeout(() => {
                 setFormErrorMessage("")
               }, 3000);
@@ -427,8 +424,8 @@ function LoginPage(props) {
         return (
           <div className="register-form-app">
             <h2>Log In</h2>
-            <Form autoComplete="off"   className="register-form" onSubmit={handleSubmit} >
-              <Form.Item autoComplete="new-password" required className={errors.email && touched.email ?"form-item error" : "form-item"} label="Email">
+            <Form autoComplete="off" className="register-form" onSubmit={handleSubmit} >
+              <Form.Item autoComplete="new-password" required className={errors.email && touched.email ? "form-item error" : "form-item"} label="Email">
                 <Input
                   id="email"
                   autoComplete="new-password"
@@ -445,12 +442,12 @@ function LoginPage(props) {
                   <div className="input-feedback">{errors.email}</div>
                 )}
               </Form.Item>
-              <Form.Item autoComplete="new-password" autoComplete="off"  required className={errors.password && touched.password ?"form-item error" : "form-item"} label="Password">
+              <Form.Item autoComplete="new-password" autoComplete="off" required className={errors.password && touched.password ? "form-item error" : "form-item"} label="Password">
                 <Input
                   id="password"
                   placeholder="Create Password"
                   type="password"
-                  autoComplete="off" 
+                  autoComplete="off"
                   value={values.password ? values.password : ""}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -476,83 +473,83 @@ function LoginPage(props) {
 }
 
 const TypesOfFilm = [
-  {  format: "VHS" },
-  {  format: "DVD" },
+  { format: "VHS" },
+  { format: "DVD" },
   { format: "Blu-Ray" },
 ]
 
 function LandingPage(props) {
 
-const [FilmsFromServer,setFilmsFromServer] = useState([]);
-const [ShowFilms, setShowFilms] = useState([])
-const [ShowStar, setShowStar] = useState("");
-const [ShowName, setShowName] = useState("");
-const [SortByName, setSortByName] = useState(false);
-const [ShowOnlyMine,setShowOnlyMine] = useState(false);
-let redux = useSelector(state => state.redux);
-const UserId = redux?.userData?._id
+  const [FilmsFromServer, setFilmsFromServer] = useState([]);
+  const [ShowFilms, setShowFilms] = useState([])
+  const [ShowStar, setShowStar] = useState("");
+  const [ShowName, setShowName] = useState("");
+  const [SortByName, setSortByName] = useState(false);
+  const [ShowOnlyMine, setShowOnlyMine] = useState(false);
+  let redux = useSelector(state => state.redux);
+  const UserId = redux?.userData?._id
 
 
-useEffect(() => {
+  useEffect(() => {
 
-      getFilms()
+    getFilms()
   }, [])
 
 
-let ll = 0;
-useEffect(() => {
-  let newShowArray =JSON.parse(JSON.stringify(FilmsFromServer));
-  console.log(newShowArray)
+  let ll = 0;
+  useEffect(() => {
+    let newShowArray = JSON.parse(JSON.stringify(FilmsFromServer));
+    console.log(newShowArray)
 
-  if(ShowName){
-    newShowArray =  newShowArray.filter(function(elem) {
-      return elem.title.toLowerCase().indexOf(ShowName.toLowerCase()) != -1;
-  });
-  }
-  if(ShowStar){
-    let ChangeShowArray = [];
-    for(let elm = 0; elm < newShowArray.length; elm++ ){
-      let l = 0;
-      for(let ooo = 0; ooo < newShowArray[elm].stars.length; ooo++){
-        if(newShowArray[elm].stars[ooo].toLowerCase().indexOf(ShowStar.toLowerCase()) != -1)
-        l = 1
+    if (ShowName) {
+      newShowArray = newShowArray.filter(function (elem) {
+        return elem.title.toLowerCase().indexOf(ShowName.toLowerCase()) != -1;
+      });
+    }
+    if (ShowStar) {
+      let ChangeShowArray = [];
+      for (let elm = 0; elm < newShowArray.length; elm++) {
+        let l = 0;
+        for (let ooo = 0; ooo < newShowArray[elm].stars.length; ooo++) {
+          if (newShowArray[elm].stars[ooo].toLowerCase().indexOf(ShowStar.toLowerCase()) != -1)
+            l = 1
+        }
+        if (l === 1)
+          ChangeShowArray.push(newShowArray[elm])
       }
-      if(l === 1)
-      ChangeShowArray.push(newShowArray[elm])
+      newShowArray = ChangeShowArray
     }
-    newShowArray = ChangeShowArray
-  }
-  if(ShowOnlyMine){
-    let ChangeShowArray = [];
-    for(let elm = 0; elm < newShowArray.length; elm++ ){
-      if(newShowArray[elm].writer._id === UserId)
-      ChangeShowArray.push(newShowArray[elm])
+    if (ShowOnlyMine) {
+      let ChangeShowArray = [];
+      for (let elm = 0; elm < newShowArray.length; elm++) {
+        if (newShowArray[elm].writer._id === UserId)
+          ChangeShowArray.push(newShowArray[elm])
+      }
+      newShowArray = ChangeShowArray
     }
-    newShowArray = ChangeShowArray
-  }
-  if(SortByName){
+    if (SortByName) {
 
-    newShowArray.sort((a, b) => (a.title.toUpperCase() > b.title.toUpperCase()) ? 1 : (a.title.toUpperCase() === b.title.toUpperCase()) ?0 : -1 )
-  }
-  
-  setShowFilms(newShowArray)
-}, [redux,ShowOnlyMine,SortByName, ShowName, ShowStar])
+      newShowArray.sort((a, b) => (a.title.toUpperCase() > b.title.toUpperCase()) ? 1 : (a.title.toUpperCase() === b.title.toUpperCase()) ? 0 : -1)
+    }
 
-const getFilms = () => {
-  axios.post(`${FILM_SERVER}/films`)
+    setShowFilms(newShowArray)
+  }, [redux, ShowOnlyMine, SortByName, ShowName, ShowStar])
+
+  const getFilms = () => {
+    axios.post(`${FILM_SERVER}/films`)
       .then(response => {
-          setFilmsFromServer(response.data.films) 
-          setShowFilms(response.data.films) 
+        setFilmsFromServer(response.data.films)
+        setShowFilms(response.data.films)
       })
-}
+  }
 
-  return(
+  return (
     <div className="landing-page">
-        <div className="landing-page-control">
-      <input placeholder="star" value={ShowStar} onChange={(e) => setShowStar(e.target.value)}></input>
-      <input placeholder="title" value={ShowName} onChange={(e) => setShowName(e.target.value)}></input>
-      <button onClick={() => setShowOnlyMine(!ShowOnlyMine)}>{ShowOnlyMine ?  "Show all" :  "Show only mine"}</button>
-      <button onClick={() => setSortByName(!SortByName)}>{SortByName ?  "Don`t sort by title" :  "Sort by title"}</button>
+      <div className="landing-page-control">
+        <input placeholder="star" value={ShowStar} onChange={(e) => setShowStar(e.target.value)}></input>
+        <input placeholder="title" value={ShowName} onChange={(e) => setShowName(e.target.value)}></input>
+        <button onClick={() => setShowOnlyMine(!ShowOnlyMine)}>{ShowOnlyMine ? "Show all" : "Show only mine"}</button>
+        <button onClick={() => setSortByName(!SortByName)}>{SortByName ? "Don`t sort by title" : "Sort by title"}</button>
       </div>
       <div className="mapofFilms">
         {
@@ -560,8 +557,8 @@ const getFilms = () => {
             <div className="filmCardTitle">{film.title}</div>
             <div className="filmCardYear">{film.year}</div>
             <div className="filmCardFormat">{film.format}</div>
-        <ul className="filmCardStars">{film.stars.map((star, starindex) => <li key={starindex+ "_"+ index}>{star}</li>)}</ul>
-         {film?.writer?._id == redux?.userData?._id && <div className="editBtnBlock"><Link className="filmCardEdit" to={"/film/"+film._id}>Edit</Link></div>}
+            <ul className="filmCardStars">{film.stars.map((star, starindex) => <li key={starindex + "_" + index}>{star}</li>)}</ul>
+            {film?.writer?._id == redux?.userData?._id && <div className="editBtnBlock"><Link className="filmCardEdit" to={"/film/" + film._id}>Edit</Link></div>}
 
           </div>)
         }
@@ -570,7 +567,6 @@ const getFilms = () => {
     </div>
   )
 }
-const regex = /[.*+:%@#!\/?^${}()|[\]\\]/g
 function FileUpload(props) {
   const [InnerFile, setInnerFile] = useState('')
   const [MainObj, setMainObj] = useState([])
@@ -582,210 +578,211 @@ function FileUpload(props) {
     let textstart = InnerFile.split("\n")
     let arrwithstrs = textstart.filter(str => {
       if (str.trim().length)
-          return str.trim();
+        return str.trim();
       return null;
     });
     console.log(arrwithstrs)
     let sendObj = [];
-    let error ="";
-    if(arrwithstrs.length % 4 != 0 || arrwithstrs.length == 0){
+    let error = "";
+    if (arrwithstrs.length % 4 != 0 || arrwithstrs.length == 0) {
       error = "Wrong row count";
-  console.log(arrwithstrs,arrwithstrs.length % 4 != 0,arrwithstrs.length == 0 )  
-  }
+      console.log(arrwithstrs, arrwithstrs.length % 4 != 0, arrwithstrs.length == 0)
+    }
     else
       for (var x = 0; x < arrwithstrs.length; x++) {
         var ObjectForSend = {};
-        if(x % 4 === 0){
-            if(arrwithstrs[x].indexOf('Title:') === 0){
-                if(arrwithstrs[x].trim().length > 'Title:'.length)
-                    ObjectForSend.title = arrwithstrs[x].substr('Title:'.length,arrwithstrs[x].length).trim();
-                else
-                error =  "Title is empty somewhere";
-            }
+        if (x % 4 === 0) {
+          if (arrwithstrs[x].indexOf('Title:') === 0) {
+            if (arrwithstrs[x].trim().length > 'Title:'.length)
+              ObjectForSend.title = arrwithstrs[x].substr('Title:'.length, arrwithstrs[x].length).trim();
             else
-            error =  "Title are not set somewhere";
-            x++;
+              error = "Title is empty somewhere";
+          }
+          else
+            error = "Title are not set somewhere";
+          x++;
         }
-        if(x % 4 === 1){
-            if(arrwithstrs[x].indexOf('Release Year:') === 0){
-                if(arrwithstrs[x].length > 'Release Year:'.length){
-                    if (Number.isInteger(Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())) &&
-                        arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())
-                          if(((new Date().getFullYear()) >= Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())) && (Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())>= 1850))
-                            ObjectForSend.year = arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim();
-                          else{
-                            error =  "Wrong year";
-                            let gg =new Date()
-                            console.log(gg.getFullYear(),Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim()), Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim()) )
-                          }
-                    else
-                    error =  "Release Year is not a number somewhere";
+        if (x % 4 === 1) {
+          if (arrwithstrs[x].indexOf('Release Year:') === 0) {
+            if (arrwithstrs[x].length > 'Release Year:'.length) {
+              if (Number.isInteger(Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())) &&
+                arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())
+                if (((new Date().getFullYear()) >= Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())) && (Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim()) >= 1850))
+                  ObjectForSend.year = arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim();
+                else {
+                  error = "Wrong year";
+                  let gg = new Date()
+                  console.log(gg.getFullYear(), Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim()), Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim()))
                 }
-                else
-                error = "Release Year are empty somewhere";
+              else
+                error = "Release Year is not a number somewhere";
             }
             else
+              error = "Release Year are empty somewhere";
+          }
+          else
             error = "Release Year are not set somewhere";
-            x++;
+          x++;
         }
-        if (x % 4 === 2){
-          if ( arrwithstrs[x].indexOf('Format:') === 0) {
-              let format =arrwithstrs[x].substr('Format:'.length, arrwithstrs[x].length).trim();
-                  if (format === "DVD" || format === "VHS" || format === "Blu-Ray")
-                      ObjectForSend.format = arrwithstrs[x].substr('Format:'.length, arrwithstrs[x].length).trim();
-                  else
-                      error = "Format is not right somewhere";
+        if (x % 4 === 2) {
+          if (arrwithstrs[x].indexOf('Format:') === 0) {
+            let format = arrwithstrs[x].substr('Format:'.length, arrwithstrs[x].length).trim();
+            if (format === "DVD" || format === "VHS" || format === "Blu-Ray")
+              ObjectForSend.format = arrwithstrs[x].substr('Format:'.length, arrwithstrs[x].length).trim();
+            else
+              error = "Format is not right somewhere";
           }
           else
             error = "Format are not set somewhere";
           x++
-      }
-      if (x % 4 === 3){
-        if(arrwithstrs[x].indexOf("Stars:") === 0) {
-            var stararr = arrwithstrs[x].trim().substr("Stars:".length,arrwithstrs[x].length).split(',');
-            
-            for(let a = 0; a < stararr.length; a++)
-                stararr[a] = stararr[a].trim();
+        }
+        if (x % 4 === 3) {
+          if (arrwithstrs[x].indexOf("Stars:") === 0) {
+            var stararr = arrwithstrs[x].trim().substr("Stars:".length, arrwithstrs[x].length).split(',');
+
+            for (let a = 0; a < stararr.length; a++)
+              stararr[a] = stararr[a].trim();
             if (stararr.indexOf("") != -1)
               error = "Stars are not set somewhere";
-              for(let a = 0; a < stararr.length; a++)
-                if(stararr[a].match(regex))
-                  error = "Stars has bad chars somewhere";
+            for (let a = 0; a < stararr.length; a++)
+              if (stararr[a].match(regex))
+                error = "Stars has bad chars somewhere";
 
-            
-            if(arrwithstrs[x].trim().substr("Stars:",arrwithstrs[x].length).trim().length > 0)
-                ObjectForSend.stars = stararr;
-            else 
-                 error = "Stars are not set somewhere";
+
+            if (arrwithstrs[x].trim().substr("Stars:", arrwithstrs[x].length).trim().length > 0)
+              ObjectForSend.stars = stararr;
+            else
+              error = "Stars are not set somewhere";
+          }
+          else
+            error = "Stars are not set somewhere";
+
+          if (Object.keys(ObjectForSend).length === 4) {
+            ObjectForSend.writer = props.userId
+            sendObj.push(ObjectForSend);
+          }
+          if (error === "" && x + 1 === arrwithstrs.length) {
+            setMainObj(sendObj)
+            setSuccesFile("All ok")
+            setErrorFile("")
+          }
+          else if (error) {
+            setErrorFile(error)
+            setSuccesFile("")
+            setMainObj([])
+
+          }
         }
-        else 
-        error = "Stars are not set somewhere";
-    
-    if (Object.keys(ObjectForSend).length === 4){
-      ObjectForSend.writer = props.userId
-      sendObj.push(ObjectForSend);
-    }
-    if(error === "" && x + 1 === arrwithstrs.length ) {
-        setMainObj(sendObj)
-        setSuccesFile("All ok")
-        setErrorFile("")
-    }
-    else if(error){
-      setErrorFile(error)
-      setSuccesFile("")
-      setMainObj([])
-
-    }
       }
-    }
-      }, [InnerFile])
+  }, [InnerFile])
 
   const onDrop = (files) => {
     const reader = new FileReader();
 
-    reader.onload = async (e) => { 
+    reader.onload = async (e) => {
       setInnerFile(e.target.result)
     };
 
     reader.readAsText(files[0]);
   }
 
-const uploadFile = () => {
-    axios.post(`${FILM_SERVER}/upload/films`,MainObj)
-    .then(res => {alert(res.data.toString())
-    setSuccesFile("")
-    setErrorFile("")
-    })
-}
+  const uploadFile = () => {
+    axios.post(`${FILM_SERVER}/upload/films`, MainObj)
+      .then(res => {
+        alert(res.data.toString())
+        setSuccesFile("")
+        setErrorFile("")
+      })
+  }
   return (
     <>
       <div className="image-uploader" >
         {
           SuccesFile &&
-        <div className="AllOkUpload">
-          {SuccesFile}
-        </div>
-}
-{
+          <div className="AllOkUpload">
+            {SuccesFile}
+          </div>
+        }
+        {
           ErrorFile &&
-        <div className="ErrorUpload">
-          {ErrorFile}
-        </div>
-}
+          <div className="ErrorUpload">
+            {ErrorFile}
+          </div>
+        }
         <Dropzone
-              onDrop={onDrop}
-              multiple={false}
-              maxSize={800000000}
-          >
-              {({ getRootProps, getInputProps }) => (
-                  <div className="dropzone"
-                      {...getRootProps()}
-                  >
-                      <input {...getInputProps()} />
-                      <Icon type="plus" style={{ fontSize: '3rem' }} />
+          onDrop={onDrop}
+          multiple={false}
+          maxSize={800000000}
+        >
+          {({ getRootProps, getInputProps }) => (
+            <div className="dropzone"
+              {...getRootProps()}
+            >
+              <input {...getInputProps()} />
+              <Icon type="plus" style={{ fontSize: '3rem' }} />
 
-                  </div>
-              )}
-          </Dropzone>
-          {SuccesFile &&
-                <button className="submit_file" onClick={() => uploadFile()}>
-submit file
+            </div>
+          )}
+        </Dropzone>
+        {SuccesFile &&
+          <button className="submit_file" onClick={() => uploadFile()}>
+            submit file
                 </button>
-}
+        }
       </div>
-     
+
     </>
   )
 }
-function UploadProductPage(props) {
+function UploadFilmPage(props) {
 
-    const [Title, setTitle] = useState("")
-    const [Year, setYear] = useState(0);
-    const [Format, setFormat] = useState("VHS")
-    const [Stars, setStars] = useState([])
+  const [Title, setTitle] = useState("")
+  const [Year, setYear] = useState(0);
+  const [Format, setFormat] = useState("VHS")
+  const [Stars, setStars] = useState([])
 
-    const onSubmit = (event) => {
-      console.log(Title, Year, Format, Stars, (new Date()).getFullYear())
+  const onSubmit = (event) => {
+    console.log(Title, Year, Format, Stars, (new Date()).getFullYear())
 
-      if (!Title || !Year  || !Format ||
-          Stars.length == 0 ) {
-          return alert('Fill all the fields first!')
-      }
-      if((new Date()).getFullYear() >= Year&& Year <= 1850){
-        return alert('Year isn`t correct')
-      }
-      if(Title.trim().match(regex)){
-        return alert('Title bad')
-      }
-      const variables = {
-          writer: props.redux.userData._id,
-          title: Title,
-          year: Year,
-          format: Format,
-          stars: Stars
-      }
-      axios.post(`${FILM_SERVER}/upload/film`,variables)
-          .then(response => {
-              if (response.data.success) {
-                  alert('Product Successfully Uploaded')
-                  setTitle("")
-                  setYear(0)
-                  setStars([])
-              } else {
-                  alert('Failed to upload Product')
-              }
-          })
+    if (!Title || !Year || !Format ||
+      Stars.length == 0) {
+      return alert('Fill all the fields first!')
+    }
+    if ((new Date()).getFullYear() >= Year && Year <= 1850) {
+      return alert('Year isn`t correct')
+    }
+    if (Title.trim().match(regex)) {
+      return alert('Title bad')
+    }
+    const variables = {
+      writer: props.redux.userData._id,
+      title: Title,
+      year: Year,
+      format: Format,
+      stars: Stars
+    }
+    axios.post(`${FILM_SERVER}/upload/film`, variables)
+      .then(response => {
+        if (response.data.success) {
+          alert('Film Successfully Uploaded')
+          setTitle("")
+          setYear(0)
+          setStars([])
+        } else {
+          alert('Failed to upload Film')
+        }
+      })
 
 
   }
   const [StarInput, setStarInput] = useState("")
-  const [Important, setImportant] =useState(false)
-  const addStarToArr =() => {
-    
-    if(StarInput.trim().match(regex))
-      alert ( "Star has bad chars somewhere");
-    else if(StarInput.trim().length> 0)
-    setStars([...Stars,StarInput.trim()])
+  const [Important, setImportant] = useState(false)
+  const addStarToArr = () => {
+
+    if (StarInput.trim().match(regex))
+      alert("Star has bad chars somewhere");
+    else if (StarInput.trim().length > 0)
+      setStars([...Stars, StarInput.trim()])
     setStarInput("")
 
   }
@@ -805,70 +802,70 @@ function UploadProductPage(props) {
 
       <Form className="upload-form" >
 
-                <div className="upload-input">
-                <label>Title</label>
-                <Input
-                    onChange={(e) => setTitle(e.target.value)}
-                    value={Title}
-                />
-                </div>
-                <div className="upload-input">
+        <div className="upload-input">
+          <label>Title</label>
+          <Input
+            onChange={(e) => setTitle(e.target.value)}
+            value={Title}
+          />
+        </div>
+        <div className="upload-input">
 
-                <label>Year</label>
-                <Input
-                    onChange={(e) => setYear(e.target.value)}
-                    value={Year == 0 ? "" : Year}
-                    type="number"
-                />
-                </div>
-                <div className="upload-input">
+          <label>Year</label>
+          <Input
+            onChange={(e) => setYear(e.target.value)}
+            value={Year == 0 ? "" : Year}
+            type="number"
+          />
+        </div>
+        <div className="upload-input">
 
-                <label>Format</label>
-                <select onChange={(e) => setFormat(e.target.value)} value={Format}>
-                    {TypesOfFilm.map(item => (
-                        <option key={item.format} value={item.format}>{item.format} </option>
-                    ))}
-                </select>
-                </div>
-                <div className="upload-input">
+          <label>Format</label>
+          <select onChange={(e) => setFormat(e.target.value)} value={Format}>
+            {TypesOfFilm.map(item => (
+              <option key={item.format} value={item.format}>{item.format} </option>
+            ))}
+          </select>
+        </div>
+        <div className="upload-input">
 
-                <label>Stars</label>
-                      <div className="star-input"><Input 
-                      onChange={(e) => setStarInput(e.target.value)}
-                      value={StarInput}
-                      />
-                <button onClick={() => addStarToArr()}>add</button>
-                      </div>
-                      
-                </div>
-                    <div className="starsMap">
-                      {Stars.map((star, index) => <div className="starRow" key={index+Math.random()}>
-                      <div>{star}</div>
-                      <button onClick={() => {setStars( deleteStar(index)) }}>X</button>
-                      </div>)}
-                    </div>
-                <Button type="submit" className="submit-upload-btn"
-                    onClick={() => onSubmit()}
-                >
-                    
-upload movie
+          <label>Stars</label>
+          <div className="star-input"><Input
+            onChange={(e) => setStarInput(e.target.value)}
+            value={StarInput}
+          />
+            <button onClick={() => addStarToArr()}>add</button>
+          </div>
+
+        </div>
+        <div className="starsMap">
+          {Stars.map((star, index) => <div className="starRow" key={index + Math.random()}>
+            <div>{star}</div>
+            <button onClick={() => { setStars(deleteStar(index)) }}>X</button>
+          </div>)}
+        </div>
+        <Button type="submit" className="submit-upload-btn"
+          onClick={() => onSubmit()}
+        >
+
+          upload movie
                 </Button>
 
-            </Form>
+      </Form>
     </div>
-    
+
 
   )
 }
 
-function My404Component(){
-  return<div className="My404Component">
+function My404Component() {
+  return <div className="My404Component">
     <div>404</div>
     <a href="/">Back to home page</a>
   </div>
 }
 
-function FilmPage(props){
+function FilmPage(props) {
   let redux = useSelector(state => state.redux);
 
   const filmId = props.match.params.filmId
@@ -880,7 +877,7 @@ function FilmPage(props){
   const [Stars, setStars] = useState([])
   const [StarInput, setStarInput] = useState("")
 
-  
+
   useEffect(() => {
     updatePage()
 
@@ -892,32 +889,32 @@ function FilmPage(props){
     setStars(Film.stars)
     setStarInput("");
   }, [Film])
-  const addStarToArr =() => {
-    if(StarInput.trim().length> 0 && !StarInput.trim().match(regex)){
-    setStars([...Stars,StarInput.trim()])
-    return  setStarInput("")
-     
+  const addStarToArr = () => {
+    if (StarInput.trim().length > 0 && !StarInput.trim().match(regex)) {
+      setStars([...Stars, StarInput.trim()])
+      return setStarInput("")
 
-  }
-  setStarInput("")
-  return alert ( "Star has bad chars somewhere or empty");
+
+    }
+    setStarInput("")
+    return alert("Star has bad chars somewhere or empty");
   }
   const updatePage = () => {
     let variables = {
       filmId: filmId,
 
     }
-    if(redux?.userData?._id)
-    axios.post(`${FILM_SERVER}/getfilm`,variables)
+    if (redux?.userData?._id)
+      axios.post(`${FILM_SERVER}/getfilm`, variables)
         .then(response => {
-          if(redux?.userData?._id == response?.data[0]?.writer._id){
-          setFilm(response.data[0])
-          console.log(response.data[0])
+          if (redux?.userData?._id == response?.data[0]?.writer._id) {
+            setFilm(response.data[0])
+            console.log(response.data[0])
           }
-          else{
+          else {
             props.history.push('/')
-          }              
-          })
+          }
+        })
   }
 
   const onSubmit = () => {
@@ -928,28 +925,28 @@ function FilmPage(props){
       year: Year,
       format: Format,
       stars: Stars
-  }
-  if (!Title || !Year  || !Format ||
-    Stars.length == 0 ) {
-    return alert('Fill all the fields first!')
-}
-if((new Date()).getFullYear() >= Year&& Year <= 1850){
-  return alert('Year isn`t correct')
-}
-if(Title.trim().match(regex)){
-  return alert('Title bad')
-}
-  console.log(variables)
-  axios.post(`${FILM_SERVER}/update/film/${filmId}`, variables)
-  .then(response => {
-    alert(response.data.message)
-    if(response?.data?.data)
-    setFilm(response.data.data)
-  })
-      
+    }
+    if (!Title || !Year || !Format ||
+      Stars.length == 0) {
+      return alert('Fill all the fields first!')
+    }
+    if ((new Date()).getFullYear() >= Year && Year <= 1850) {
+      return alert('Year isn`t correct')
+    }
+    if (Title.trim().match(regex)) {
+      return alert('Title bad')
+    }
+    console.log(variables)
+    axios.post(`${FILM_SERVER}/update/film/${filmId}`, variables)
+      .then(response => {
+        alert(response.data.message)
+        if (response?.data?.data)
+          setFilm(response.data.data)
+      })
+
 
   }
-  const [Important, setImportant] =useState(false)
+  const [Important, setImportant] = useState(false)
 
   const deleteStar = (star) => {
     let newStars = Stars
@@ -959,78 +956,78 @@ if(Title.trim().match(regex)){
   }
   const onDelete = () => {
     axios.delete(`${FILM_SERVER}/delete/film/${filmId}`)
-  .then(response => {
-    alert(response.data.message)
-    if(response?.data?.success)
-    props.history.push('/')
+      .then(response => {
+        alert(response.data.message)
+        if (response?.data?.success)
+          props.history.push('/')
 
-  })
+      })
   }
   return (
     <div className="upload-product">
-    <h2 className="upload-logo">Film editing</h2>
+      <h2 className="upload-logo">Film editing</h2>
 
-    <Form className="upload-form" >
+      <Form className="upload-form" >
 
-              <div className="upload-input">
-              <label>Title</label>
-              <Input
-                  onChange={(e) => setTitle(e.target.value)}
-                  value={Title}
-              />
-              </div>
-              <div className="upload-input">
+        <div className="upload-input">
+          <label>Title</label>
+          <Input
+            onChange={(e) => setTitle(e.target.value)}
+            value={Title}
+          />
+        </div>
+        <div className="upload-input">
 
-              <label>Year</label>
-              <Input
-                  onChange={(e) => setYear(e.target.value)}
-                  value={Year == 0 ? "" : Year}
-                  type="number"
-              />
-              </div>
-              <div className="upload-input">
+          <label>Year</label>
+          <Input
+            onChange={(e) => setYear(e.target.value)}
+            value={Year == 0 ? "" : Year}
+            type="number"
+          />
+        </div>
+        <div className="upload-input">
 
-              <label>Format</label>
-              <select onChange={(e) => setFormat(e.target.value)} value={Format}>
-                  {TypesOfFilm.map(item => (
-                      <option key={item.format} value={item.format}>{item.format} </option>
-                  ))}
-              </select>
-              </div>
-              <div className="upload-input">
+          <label>Format</label>
+          <select onChange={(e) => setFormat(e.target.value)} value={Format}>
+            {TypesOfFilm.map(item => (
+              <option key={item.format} value={item.format}>{item.format} </option>
+            ))}
+          </select>
+        </div>
+        <div className="upload-input">
 
-                <label>Stars</label>
-                      <div className="star-input"><Input 
-                      onChange={(e) => setStarInput(e.target.value)}
-                      value={StarInput}
-                      />
-                <button onClick={() => addStarToArr()}>add</button>
-                      </div>
-                      
-                </div>
-                    <div className="starsMap">
-                     {Stars&&Stars.map((star, index) => <div className="starRow" key={index+Math.random()}>
-                      <div>{star}</div>
-                      <button onClick={() => {setStars( deleteStar(index)) }}>X</button>
-                      </div>)} 
-                      
-                    </div>
+          <label>Stars</label>
+          <div className="star-input"><Input
+            onChange={(e) => setStarInput(e.target.value)}
+            value={StarInput}
+          />
+            <button onClick={() => addStarToArr()}>add</button>
+          </div>
+
+        </div>
+        <div className="starsMap">
+          {Stars && Stars.map((star, index) => <div className="starRow" key={index + Math.random()}>
+            <div>{star}</div>
+            <button onClick={() => { setStars(deleteStar(index)) }}>X</button>
+          </div>)}
+
+        </div>
 
 
-              <Button type="submit" className="submit-upload-btn"
-                  onClick={() => onSubmit()}
-              >
-                  Submit
+        <Button type="submit" className="submit-upload-btn"
+          onClick={() => onSubmit()}
+        >
+          Submit
               </Button>
-              <Button type="submit" className="submit-upload-btn"
-                  onClick={() => onDelete()}
-              >
-                  Delete
-              </Button>      
-          </Form>
-  </div>
+        <Button type="submit" className="submit-upload-btn"
+          onClick={() => onDelete()}
+        >
+          Delete
+              </Button>
+      </Form>
+    </div>
   )
-  
+
 }
 
 
@@ -1038,55 +1035,53 @@ if(Title.trim().match(regex)){
 
 
 function changePassword(dataToSubmit) {
-  return  axios.post(`${USER_SERVER}/changePassword`, dataToSubmit)
-      .then(response => response.data);
+  return axios.post(`${USER_SERVER}/changePassword`, dataToSubmit)
+    .then(response => response.data);
 }
 
-function SettingsPage (props) {
+function SettingsPage(props) {
   let redux = useSelector(state => state.redux);
   const [Films, setFilms] = useState([])
   const [FilmsInput, setFilmsInput] = useState("")
 
   const rmrfFilm = (idid) => {
     axios.delete(`${FILM_SERVER}/delete/film/${idid}`).then(response => {
-      if(response.data.success){
+      if (response.data.success) {
         alert(response.data.message)
-      getUserProducts()
-    }
-    else{
-      alert(response.data.message)
-    }
-  })
-  }
-
-  const getUserProducts = () => {
-    axios.post(`${FILM_SERVER}/films`).then((res) => {
-      if(redux?.userData?._id)
-      {
-
-      let films = res.data.films.filter(film => film.writer._id == redux.userData._id)
-
-      if(FilmsInput)
-        films.filter(film => film.title == FilmsInput)
-      setFilms(films)
+        getUserFilms()
       }
+      else {
+        alert(response.data.message)
+      }
+    })
   }
+
+  const getUserFilms = () => {
+    axios.post(`${FILM_SERVER}/films`).then((res) => {
+      if (redux?.userData?._id) {
+        let films = res.data.films.filter(film => film.writer._id == redux.userData._id)
+
+        if (FilmsInput)
+          films.filter(film => film.title == FilmsInput)
+        setFilms(films)
+      }
+    }
     )
-  } 
-  const deleteAccount =() => {
+  }
+  const deleteAccount = () => {
     axios.delete(`${USER_SERVER}/delete/acc`).then(response => {
-      if(response.data.success){
+      if (response.data.success) {
         alert(response.data.message)
         props.history.push("/login");
-    }
-    else{
-      alert(response.data.message)
-    }
-  })
+      }
+      else {
+        alert(response.data.message)
+      }
+    })
   }
   useEffect(() => {
-    getUserProducts()
-  }, [redux,FilmsInput])
+    getUserFilms()
+  }, [redux, FilmsInput])
 
   return (
 
@@ -1111,7 +1106,7 @@ function SettingsPage (props) {
             password: values.password,
           };
           changePassword(dataToSubmit).then(response => {
-              alert("changed")
+            alert("changed")
           })
 
           setSubmitting(false);
@@ -1131,16 +1126,16 @@ function SettingsPage (props) {
         return (
           <div className="settings-app">
             <h2>Settings of user</h2>
-        <div>{redux?.userData?.name} | {redux?.userData?.email}</div>
+            <div className="settings_user-name">{redux?.userData?.name} | {redux?.userData?.email}</div>
             <h4>Change Password</h4>
 
             <Form autoComplete="off" className="register-form" onSubmit={handleSubmit} >
-              <Form.Item required className={errors.password && touched.password ?"form-item error" : "form-item"} label="Password">
+              <Form.Item required className={errors.password && touched.password ? "form-item error" : "form-item"} label="Password">
                 <Input
                   id="password"
                   autoComplete="new-password"
                   placeholder="Create Password"
-                  type="password" 
+                  type="password"
                   value={values.password}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -1153,7 +1148,7 @@ function SettingsPage (props) {
                 )}
               </Form.Item>
 
-              <Form.Item required className={errors.confirmPassword && touched.confirmPassword ?"form-item error" : "form-item"} label="Confirm Password">
+              <Form.Item required className={errors.confirmPassword && touched.confirmPassword ? "form-item error" : "form-item"} label="Confirm Password">
                 <Input
                   id="confirmPassword"
                   placeholder="Submit Password"
@@ -1177,17 +1172,19 @@ function SettingsPage (props) {
                 </Button>
               </Form.Item>
             </Form>
-            <button onClick={() => deleteAccount()}>Delete Account</button>
-            <h4 className="logo-setttings-delete-logo">Delete Your Products</h4>
+            <div className="delete-btn-row">
+              <button onClick={() => deleteAccount()}>Delete Account</button>
+            </div>
+            <h4 className="logo-setttings-delete-logo">Delete Your films</h4>
 
             <div className="deleteBtns">
-              <input placeholder="Find your product" value={FilmsInput}  onChange={(e) =>  setFilmsInput(e.target.value)} />
+              <input placeholder="Find film for delete" value={FilmsInput} onChange={(e) => setFilmsInput(e.target.value)} />
               {Films.map((item, index) => <div className="delete-row" key={index}>
                 <div>{item.title}</div>
-<button onClick={() => rmrfFilm(item._id)}>
-  X
-  </button>                
-                 </div>)}
+                <button onClick={() => rmrfFilm(item._id)}>
+                  X
+  </button>
+              </div>)}
             </div>
           </div>
         );
@@ -1200,21 +1197,21 @@ function SettingsPage (props) {
 function App(props) {
   return (
     <Suspense fallback={(<div>Loading...</div>)}>
-      
-      <div className="main-div" style={{  minHeight: 'calc(100vh - 175px)' }}>
-      <Route path="/" component= {NavBar} />
-         <Switch>
+
+      <div className="main-div" style={{ minHeight: 'calc(100vh - 175px)' }}>
+        <Route path="/" component={NavBar} />
+        <Switch>
           <Route exact path="/" component={Auth(LandingPage, true)} />
           <Route exact path="/register" component={Auth(RegisterPage, false)} />
           <Route exact path="/login" component={Auth(LoginPage, false)} />
-          <Route exact path="/upload" component={Auth(UploadProductPage, true)} />
+          <Route exact path="/upload" component={Auth(UploadFilmPage, true)} />
           <Route exact path="/film/:filmId" component={Auth(FilmPage, true)} />
           <Route exact path="/settings" component={Auth(SettingsPage, true)} />
-          <Route path='*' exact={true} component={My404Component} />
+          <Route path='*' exact={true} component={Auth(LandingPage, true)} />
         </Switch>
-        </div>
+      </div>
 
-        </Suspense>
+    </Suspense>
   );
 }
 
@@ -1222,17 +1219,17 @@ function App(props) {
 
 ReactDOM.render(
   <Provider
-      store={createStoreWithMiddleware(
-          rootReducer,
-          window.__REDUX_DEVTOOLS_EXTENSION__ &&
-          window.__REDUX_DEVTOOLS_EXTENSION__()
-      )}
+    store={createStoreWithMiddleware(
+      rootReducer,
+      window.__REDUX_DEVTOOLS_EXTENSION__ &&
+      window.__REDUX_DEVTOOLS_EXTENSION__()
+    )}
   >
-      <BrowserRouter>
+    <BrowserRouter>
       <Switch>
-        <Route  path="/" component={App} />
+        <Route path="/" component={App} />
       </Switch>
-      </BrowserRouter>
+    </BrowserRouter>
   </Provider>
   , document.getElementById('root'));
 serviceWorker.unregister();
