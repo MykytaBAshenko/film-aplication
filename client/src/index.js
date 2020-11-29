@@ -131,7 +131,7 @@ function Auth (ComposedClass, reload, adminRoute = null) {
               }
           })
           
-      }, [dispatch, props.history, redux.googleAuth])
+      }, [dispatch, props.history])
 
       return (
           <ComposedClass {...props} redux={redux} />
@@ -511,6 +511,8 @@ useEffect(() => {
 let ll = 0;
 useEffect(() => {
   let newShowArray =JSON.parse(JSON.stringify(FilmsFromServer));
+  console.log(newShowArray)
+
   if(ShowName){
     newShowArray =  newShowArray.filter(function(elem) {
       return elem.title.toLowerCase().indexOf(ShowName.toLowerCase()) != -1;
@@ -1028,11 +1030,17 @@ function SettingsPage (props) {
   const [Films, setFilms] = useState([])
   const [FilmsInput, setFilmsInput] = useState("")
 
-  // const rmrfFromProducts = (idid) => {
-  //   axios.get(`${FILM_SERVER}/rmrfProduct?userId=${redux.userData._id}&productId=${idid}`).then(response => {
-  //     setProducts(response.data)
-  // })
-  // }
+  const rmrfFilm = (idid) => {
+    axios.delete(`${FILM_SERVER}/delete/film/${idid}`).then(response => {
+      if(response.data.success){
+        alert(response.data.message)
+      getUserProducts()
+    }
+    else{
+      alert(response.data.message)
+    }
+  })
+  }
 
   const getUserProducts = () => {
     axios.post(`${FILM_SERVER}/films`).then((res) => {
@@ -1050,7 +1058,17 @@ function SettingsPage (props) {
   }
     )
   } 
-
+  const deleteAccount =() => {
+    axios.delete(`${USER_SERVER}/delete/acc`).then(response => {
+      if(response.data.success){
+        alert(response.data.message)
+        props.history.push("/login");
+    }
+    else{
+      alert(response.data.message)
+    }
+  })
+  }
   useEffect(() => {
     getUserProducts()
   }, [redux,FilmsInput])
@@ -1099,7 +1117,8 @@ function SettingsPage (props) {
         } = props;
         return (
           <div className="settings-app">
-            <h2>Settings</h2>
+            <h2>Settings of user</h2>
+        <div>{redux?.userData?.name} | {redux?.userData?.email}</div>
             <h4>Change Password</h4>
 
             <Form autoComplete="off" className="register-form" onSubmit={handleSubmit} >
@@ -1145,15 +1164,16 @@ function SettingsPage (props) {
                 </Button>
               </Form.Item>
             </Form>
+            <button onClick={() => deleteAccount()}>Delete Account</button>
             <h4 className="logo-setttings-delete-logo">Delete Your Products</h4>
 
             <div className="deleteBtns">
               <input placeholder="Find your product" value={FilmsInput}  onChange={(e) =>  setFilmsInput(e.target.value)} />
               {Films.map((item, index) => <div className="delete-row" key={index}>
-                {/* <div>{item.title}</div>
-<button onClick={() => rmrfFromProducts(item._id)}>
+                <div>{item.title}</div>
+<button onClick={() => rmrfFilm(item._id)}>
   X
-  </button>                 */}
+  </button>                
                  </div>)}
             </div>
           </div>

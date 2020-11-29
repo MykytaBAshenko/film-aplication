@@ -137,7 +137,7 @@ let auth = (req, res, next) => {
 
 const filmSchema = mongoose.Schema({
   writer: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
   },
   title: {
@@ -222,10 +222,9 @@ filmRouter.post("/upload/films",auth,   (req, res) => {
   filmRouter.post("/upload/film",auth,   (req, res) => {
 
     
-        req.body.writer = mongoose.Types.ObjectId(req.body.writer)
         
     const film = new Film(req.body)
-    console.log(req.body)
+    film.writer = mongoose.Types.ObjectId(req.body.writer)
     film.save((err) => {
         if (err) return res.status(400).json({ success: false, err })
         return res.status(200).json({ success: true })
@@ -249,17 +248,17 @@ filmRouter.post("/uploadImage", auth, (req, res) => {
 
 filmRouter.post("/update/film/:id",auth, async (req, res) => {
     Film.findById(req.body._id).then(film => {
-      film._id = mongoose.Types.ObjectId(req.body._id);;
+      film._id = mongoose.Types.ObjectId(req.body._id);
       film.title = req.body.title;
       film.writer =  mongoose.Types.ObjectId(req.body.writer);
       film.year = req.body.year;
       film.format = req.body.format;
-      film.stars = JSON.parse(JSON.stringify(req.body.stars));
+      film.stars = req.body.stars;
        film.save().then(() =>{return  res.status(200).json({ success: true, message:"film Updated"})})
        .catch(err => res.status(400).json({ success: false, message:`Error ${err}`}));
     }).catch((err) => res.status(400).json({ success: false, message:`Error ${err}` }))
     // return res.status(500).send({ message: ' Error in updating project.' });
-      })    ;
+      })    ; 
 
 
 
@@ -389,20 +388,14 @@ filmRouter.post("/getfilm", (req, res) => {
 
 
   filmRouter.delete("/delete/film/:filmId",auth, (req, res) => {
-    const filmId = req.params.filmId;
-
-  
-    Film.find({ _id:filmId  }).remove().exec((err, ok) => {
+    Film.find({ _id:req.params.filmId  }).remove().exec((err, ok) => {
       if(err)
       res.status(400).send({ message: 'Error', success: 0})
       else 
       res.status(200).send({ message: 'Film deleted', success: 1})
     }
     );
-    // Product.find({writer: userId}).exec((err, products) => {
-    //     if(err) return res.status(400).send(err)
-    //     res.status(200).send(products)
-    // })
+
   });  
 
 
@@ -410,15 +403,9 @@ filmRouter.post("/getfilm", (req, res) => {
 userRouter.get("/auth", auth, (req, res) => {
   res.status(200).json({
       _id: req.user._id,
-      isAdmin: req.user.role === 0 ? false : true,
       isAuth: true,
       email: req.user.email,
       name: req.user.name,
-      lastname: req.user.lastname,
-      role: req.user.role,
-      image: req.user.image,
-      cart: req.user.cart,
-      history: req.user.history
   });
 });
 
@@ -437,7 +424,7 @@ userRouter.post("/register", (req, res) => {
 userRouter.post("/changePassword", (req, res) => {
     bcrypt.genSalt(saltRounds, function (err, salt) {
     bcrypt.hash(req.body.password, salt, function (err, new_pass) {
-        User.useFindAndModify({ _id: req.body.id }, { password: new_pass }, (err, doc) => {
+        User.findOneAndUpdate({ _id: req.body.id }, { password: new_pass }, (err, doc) => {
         if (err) return res.json({ success: false, err });
         return res.status(200).send({
             success: true
@@ -482,6 +469,38 @@ userRouter.get("/logout", auth, (req, res) => {
       });
   });
 });
+
+userRouter.delete("/delete/acc", auth, (req, res) => {
+    // User.findOneAndUpdate({ _id: req.user._id }, { token: "", tokenExp: "" }, (err, doc) => {
+    //     if (err) return res.json({ success: false, err });
+    //     return res.status(200).send({
+    //         success: true
+    //     });
+    // });
+    User.findOne({ _id: req.user._id }, (err, user) => {
+        if (!user)
+            return res.json({
+                success: false,
+                message: "Auth failed, email not found"
+            });
+            Film.find({ writer:req.user._id  }).remove().exec((err, ok) => {
+                if(err)
+                res.status(400).send({ message: 'Error', success: 0})
+                else 
+                User.find({_id: req.user._id  }).remove().exec((err, ok) => {
+                    if(err)
+                    res.status(400).send({ message: 'Films deleted', success: 0})
+                    else 
+                    res.status(200).send({ message: 'All deleted', success: 1})
+                  }
+                  );
+                }
+ 
+                )
+              }
+              );
+        
+    });
 
 app.use('/api/users', userRouter);
 app.use('/api/film', filmRouter);
