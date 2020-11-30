@@ -144,7 +144,7 @@ td, th {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 180px);
 }
 
 .scroool {
@@ -1092,7 +1092,7 @@ input[type=checkbox] {
 @media screen and (max-width:600px) {
   .star-input {
     grid-template-columns: 1fr;
-    row-gap: 15px;
+    row-gap: 30px;
   }
   .star-input button {
     width: 100%;

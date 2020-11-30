@@ -543,10 +543,11 @@ function LandingPage(props) {
   return (
     <div className="landing-page">
       <div className="landing-page-control">
-        <input placeholder="star" value={ShowStar} onChange={(e) => setShowStar(e.target.value)}></input>
-        <input placeholder="title" value={ShowName} onChange={(e) => setShowName(e.target.value)}></input>
         <button onClick={() => setShowOnlyMine(!ShowOnlyMine)}>{ShowOnlyMine ? "Show all" : "Show only mine"}</button>
         <button onClick={() => setSorting()}>{SortByName === -1 ? "Don`t sort by title" : SortByName === 0 ? "Sort title by asc order" : "Sort  title by desc order"}</button>
+        <input placeholder="star" value={ShowStar} onChange={(e) => setShowStar(e.target.value)}></input>
+        <input placeholder="title" value={ShowName} onChange={(e) => setShowName(e.target.value)}></input>
+
       </div>
       <div className="mapofFilms">
         {
@@ -1179,9 +1180,9 @@ function SettingsPage(props) {
 function App(props) {
   return (
     <Suspense fallback={(<div>Loading...</div>)}>
-
-      <div className="main-div" style={{ minHeight: 'calc(100vh - 175px)' }}>
         <Route path="/" component={NavBar} />
+
+      <div className="main-div" >
         <Switch>
           <Route exact path="/" component={Auth(LandingPage, true)} />
           <Route exact path="/register" component={Auth(RegisterPage, false)} />
