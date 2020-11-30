@@ -166,7 +166,7 @@ function NavBar(props) {
                     <a href="/login" className="nav-link">Signin</a>
                   </li>
                   <li className="navbar-item">
-                    <a href="/register" className="nav-link">Signup</a>
+                    <a href="/signup" className="nav-link">Signup</a>
                   </li>
                 </ul>
                 :
@@ -1185,7 +1185,7 @@ function App(props) {
       <div className="main-div" >
         <Switch>
           <Route exact path="/" component={Auth(LandingPage, true)} />
-          <Route exact path="/register" component={Auth(RegisterPage, false)} />
+          <Route exact path="/signup" component={Auth(RegisterPage, false)} />
           <Route exact path="/login" component={Auth(LoginPage, false)} />
           <Route exact path="/upload" component={Auth(UploadFilmPage, true)} />
           <Route exact path="/film/:filmId" component={Auth(FilmPage, true)} />
