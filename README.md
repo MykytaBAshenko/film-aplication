@@ -18,6 +18,6 @@ Simple fullstack app
 ### 
     module.exports = {
     mongoURI:"mongodb+srv://username:password@YOUR_MONGODBCLUSTER.mongodb.net/film-app?retryWrites=true&w=majority",
-    SSECRET:"SECRET"//secret word for secure logining
+    SECRET:"SECRET"//secret word for secure logining
     }
 >**5. write in / node server/index.js && write in ./client/ npm start**  
