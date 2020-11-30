@@ -25,7 +25,7 @@ Simple fullstack app
 
 
 
-### Text example which should be in file for file upload
+### Text example which should be in file for file uploading
  
     Title: Blazing Saddles
     Release Year: 1974
