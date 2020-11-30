@@ -17,7 +17,7 @@ Simple fullstack app
 >**4. write this in dev.js file and save**  
 ### 
     module.exports = {
-    mongoURI:"mongodb+srv://username:password@YOUR_MONGODBCLUSTER.mongodb.net/film-app?retryWrites=true&w=majority",
+    mongoURI:"mongodb+srv://username:password@YOUR_MONGODBCLUSTER.mongodb.net/YOUR_MONGOD_COLLECTION?retryWrites=true&w=majority",
     SECRET:"SECRET"//secret word for secure logining
     }
 >**5. write in / node server/index.js && write in ./client/ npm start**  
