@@ -18,7 +18,7 @@ import {
   Input,
   Button,
 } from 'antd';
-const regex = /[.*+:%@#!\/?^${}()|[\]\\]/g
+const regex = /[.*+:%@#!`'"&;~/?^${}()|[\]\\]/g
 const config = {
   MAGIC_HOST: ""
 };
@@ -482,8 +482,6 @@ function LandingPage(props) {
 
   useEffect(() => {
     let newShowArray = JSON.parse(JSON.stringify(FilmsFromServer));
-    console.log(newShowArray)
-
     if (ShowName) {
       newShowArray = newShowArray.filter(function (elem) {
         return elem.title.toLowerCase().indexOf(ShowName.toLowerCase()) != -1;
@@ -548,7 +546,7 @@ function LandingPage(props) {
         <input placeholder="star" value={ShowStar} onChange={(e) => setShowStar(e.target.value)}></input>
         <input placeholder="title" value={ShowName} onChange={(e) => setShowName(e.target.value)}></input>
         <button onClick={() => setShowOnlyMine(!ShowOnlyMine)}>{ShowOnlyMine ? "Show all" : "Show only mine"}</button>
-        <button onClick={() => setSorting()}>{SortByName === -1 ? "Don`t sort by title" : SortByName === 0 ? "Sort by title in asc order" : "Sort by title in desc order"}</button>
+        <button onClick={() => setSorting()}>{SortByName === -1 ? "Don`t sort by title" : SortByName === 0 ? "Sort title by asc order" : "Sort  title by desc order"}</button>
       </div>
       <div className="mapofFilms">
         {
@@ -557,7 +555,7 @@ function LandingPage(props) {
             <div className="filmCardYear">{film.year}</div>
             <div className="filmCardFormat">{film.format}</div>
             <ul className="filmCardStars">{film.stars.map((star, starindex) => <li key={starindex + "_" + index}>{star}</li>)}</ul>
-            {film?.writer?._id == redux?.userData?._id && <div className="editBtnBlock"><Link className="filmCardEdit" to={"/film/" + film._id}>Edit</Link></div>}
+            {film?.writer?._id === redux?.userData?._id && <div className="editBtnBlock"><Link className="filmCardEdit" to={"/film/" + film._id}>Edit</Link></div>}
 
           </div>)
         }
@@ -571,7 +569,6 @@ function FileUpload(props) {
   const [MainObj, setMainObj] = useState([])
   const [ErrorFile, setErrorFile] = useState("")
   const [SuccesFile, setSuccesFile] = useState("")
-  const [SuccesUpload, setSuccesUpload] = useState("")
 
   useEffect(() => {
     let textstart = InnerFile.split("\n")
@@ -583,9 +580,9 @@ function FileUpload(props) {
     console.log(arrwithstrs)
     let sendObj = [];
     let error = "";
-    if (arrwithstrs.length % 4 != 0 || arrwithstrs.length == 0) {
+    if (arrwithstrs.length % 4 !== 0 || arrwithstrs.length === 0) {
       error = "Wrong row count";
-      console.log(arrwithstrs, arrwithstrs.length % 4 != 0, arrwithstrs.length == 0)
+      console.log(arrwithstrs, arrwithstrs.length % 4 != 0, arrwithstrs.length === 0)
     }
     else
       for (var x = 0; x < arrwithstrs.length; x++) {
@@ -744,7 +741,7 @@ function UploadFilmPage(props) {
     console.log(Title, Year, Format, Stars, (new Date()).getFullYear())
 
     if (!Title || !Year || !Format ||
-      Stars.length == 0) {
+      Stars.length === 0) {
       return alert('Fill all the fields first!')
     }
     if ((new Date()).getFullYear() >= Year && Year <= 1850) {
@@ -813,7 +810,7 @@ function UploadFilmPage(props) {
           <label>Year</label>
           <Input
             onChange={(e) => setYear(e.target.value)}
-            value={Year == 0 ? "" : Year}
+            value={Year === 0 ? "" : Year}
             type="number"
           />
         </div>
@@ -855,13 +852,6 @@ function UploadFilmPage(props) {
 
 
   )
-}
-
-function My404Component() {
-  return <div className="My404Component">
-    <div>404</div>
-    <a href="/">Back to home page</a>
-  </div>
 }
 
 function FilmPage(props) {
@@ -906,7 +896,7 @@ function FilmPage(props) {
     if (redux?.userData?._id)
       axios.post(`${FILM_SERVER}/getfilm`, variables)
         .then(response => {
-          if (redux?.userData?._id == response?.data[0]?.writer._id) {
+          if (redux?.userData?._id === response?.data[0]?.writer._id) {
             setFilm(response.data[0])
             console.log(response.data[0])
           }
@@ -926,7 +916,7 @@ function FilmPage(props) {
       stars: Stars
     }
     if (!Title || !Year || !Format ||
-      Stars.length == 0) {
+      Stars.length === 0) {
       return alert('Fill all the fields first!')
     }
     if ((new Date()).getFullYear() >= Year && Year <= 1850) {
@@ -980,7 +970,7 @@ function FilmPage(props) {
           <label>Year</label>
           <Input
             onChange={(e) => setYear(e.target.value)}
-            value={Year == 0 ? "" : Year}
+            value={Year === 0 ? "" : Year}
             type="number"
           />
         </div>
@@ -1056,16 +1046,17 @@ function SettingsPage(props) {
   }
 
   const getUserFilms = () => {
-    axios.post(`${FILM_SERVER}/films`).then((res) => {
-      if (redux?.userData?._id) {
-        let films = res.data.films.filter(film => film.writer._id == redux.userData._id)
+    if (redux?.userData?._id) {
+      axios.post(`${FILM_SERVER}/films`).then((res) => {
+        let films = res.data.films.filter(film => film.writer._id === redux.userData._id)
 
         if (FilmsInput)
-          films.filter(film => film.title == FilmsInput)
+          films.filter(film => film.title === FilmsInput)
         setFilms(films)
       }
+      )
     }
-    )
+
   }
   const deleteAccount = () => {
     axios.delete(`${USER_SERVER}/delete/acc`).then(response => {
@@ -1080,7 +1071,7 @@ function SettingsPage(props) {
   }
   useEffect(() => {
     getUserFilms()
-  }, [redux, FilmsInput])
+  }, [redux, FilmsInput, getUserFilms])
 
   return (
 

@@ -977,7 +977,7 @@ input[type=checkbox] {
   justify-items: center;
 }
 
-@media screen and (max-width: 940px) {
+@media screen and (max-width: 1280px) {
   .landing-page-control {
     grid-template-columns: 1fr 1fr;
     row-gap: 15px;
