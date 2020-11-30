@@ -7,12 +7,13 @@ Simple fullstack app
 >**2. file reading**  
 >**3. sorting**  
 >**4. searching**  
+>**5. account control**  
 
  
 ### How start localy:
 >**1. git clone**  
 >**2. npm install in / && npm install in /client**  
->**3. in folder /server/config create dev.js file**
+>**3. in folder /server/config create dev.js file**  
 >**4. write this in dev.js file and save**  
 ### 
     module.exports = {
