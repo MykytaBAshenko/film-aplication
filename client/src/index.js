@@ -509,15 +509,15 @@ function LandingPage(props) {
       newShowArray = ChangeShowArray
     }
     if (SortByName === 1) {
-
       newShowArray.sort((a, b) => (a.title.toUpperCase() > b.title.toUpperCase()) ? 1 : (a.title.toUpperCase() === b.title.toUpperCase()) ? 0 : -1)
     }
 
     if (SortByName === -1) {
-
       newShowArray.sort((a, b) => (a.title.toUpperCase() > b.title.toUpperCase()) ? -1 : (a.title.toUpperCase() === b.title.toUpperCase()) ? 0 : 1)
     }
+
     setShowFilms(newShowArray)
+
   }, [redux, ShowOnlyMine, SortByName, ShowName, ShowStar])
 
   const getFilms = () => {
@@ -577,12 +577,10 @@ function FileUpload(props) {
         return str.trim();
       return null;
     });
-    console.log(arrwithstrs)
     let sendObj = [];
     let error = "";
     if (arrwithstrs.length % 4 !== 0 || arrwithstrs.length === 0) {
       error = "Wrong row count";
-      console.log(arrwithstrs, arrwithstrs.length % 4 != 0, arrwithstrs.length === 0)
     }
     else
       for (var x = 0; x < arrwithstrs.length; x++) {
@@ -605,11 +603,8 @@ function FileUpload(props) {
                 arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())
                 if (((new Date().getFullYear()) >= Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())) && (Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim()) >= 1850))
                   ObjectForSend.year = arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim();
-                else {
+                else 
                   error = "Wrong year";
-                  let gg = new Date()
-                  console.log(gg.getFullYear(), Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim()), Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim()))
-                }
               else
                 error = "Release Year is not a number somewhere";
             }
@@ -738,7 +733,6 @@ function UploadFilmPage(props) {
   const [Stars, setStars] = useState([])
 
   const onSubmit = (event) => {
-    console.log(Title, Year, Format, Stars, (new Date()).getFullYear())
 
     if (!Title || !Year || !Format ||
       Stars.length === 0) {
@@ -898,7 +892,6 @@ function FilmPage(props) {
         .then(response => {
           if (redux?.userData?._id === response?.data[0]?.writer._id) {
             setFilm(response.data[0])
-            console.log(response.data[0])
           }
           else {
             props.history.push('/')
@@ -925,7 +918,6 @@ function FilmPage(props) {
     if (Title.trim().match(regex)) {
       return alert('Title bad')
     }
-    console.log(variables)
     axios.post(`${FILM_SERVER}/update/film/${filmId}`, variables)
       .then(response => {
         alert(response.data.message)
