@@ -1,6 +1,6 @@
 # MERN_FilmAPP
 Run on  
-[gunstashop.herokuapp.com](https://filmapplicationwebbylab.herokuapp.com/)  
+[filmapplicationwebbylab.herokuapp.com](https://filmapplicationwebbylab.herokuapp.com/)  
 Simple fullstack app
 ### What is implemented:
 >**1. login and registration**  
