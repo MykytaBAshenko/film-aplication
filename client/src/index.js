@@ -155,7 +155,7 @@ function NavBar(props) {
       <div className="">
         <div className="yellow-line">
           <nav className="navbar   navbar-expand-lg ">
-            <a href="/" className="navbar-brand">FilmAPP</a>
+            <Link to="/" className="navbar-brand">FilmAPP</Link>
             <button className="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
               <i className="fas fa-bars"></i>
             </button>
@@ -163,22 +163,22 @@ function NavBar(props) {
               {((redux.userData && !redux.userData.isAuth)) ?
                 <ul className="navbar-nav ml-auto">
                   <li className="navbar-item">
-                    <a href="/login" className="nav-link">Signin</a>
+                    <Link to="/login" className="nav-link">Signin</Link>
                   </li>
                   <li className="navbar-item">
-                    <a href="/signup" className="nav-link">Signup</a>
+                    <Link to="/signup" className="nav-link">Signup</Link>
                   </li>
                 </ul>
                 :
                 <ul className="navbar-nav ml-auto">
                   <li className="navbar-item">
-                    <a href="/" className="nav-link">Films</a>
+                    <Link to="/" className="nav-link">Films</Link>
                   </li>
                   <li className="navbar-item">
                     <Link to="/upload" className="nav-link">Upload</Link>
                   </li>
                   <li className="navbar-item">
-                    <a href="/settings" className="nav-link">Settings</a>
+                    <Link to="/settings" className="nav-link">Settings</Link>
                   </li>
                   <li className="navbar-item">
                     <a onClick={logoutHandler} className="nav-link">Log out</a>
@@ -557,10 +557,18 @@ function LandingPage(props) {
             <div className="filmCardFormat">{film.format}</div>
             <ul className="filmCardStars">{film.stars.map((star, starindex) => <li key={starindex + "_" + index}>{star}</li>)}</ul>
             {film?.writer?._id === redux?.userData?._id && <div className="editBtnBlock"><Link className="filmCardEdit" to={"/film/" + film._id}>Edit</Link></div>}
-
           </div>)
         }
-
+        {
+          !ShowFilms.length && <div className="no_movies_found">
+              <div className="no_movies_found_title">
+                no movies found
+              </div>
+              <Link to="/upload">
+                add movies
+              </Link>
+            </div> 
+        }
       </div>
     </div>
   )
@@ -602,7 +610,7 @@ function FileUpload(props) {
             if (arrwithstrs[x].length > 'Release Year:'.length) {
               if (Number.isInteger(Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())) &&
                 arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())
-                if (((new Date().getFullYear()) >= Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())) && (Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim()) >= 1850))
+                if (((new Date()).getFullYear() >= Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim())) && (Number(arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim()) >= 1850))
                   ObjectForSend.year = arrwithstrs[x].substr('Release Year:'.length, arrwithstrs[x].length).trim();
                 else 
                   error = "Wrong year";
@@ -639,8 +647,13 @@ function FileUpload(props) {
             for (let a = 0; a < stararr.length; a++)
               if (stararr[a].match(regex))
                 error = "Stars has bad chars somewhere";
-
-
+            for (let gg = 0; gg< stararr.length; gg++){
+              for (let ff = 0; ff< stararr.length; ff++){
+                if (stararr[gg].trim() === stararr[ff].trim() && ff!==gg){
+                  error = "Somewhere stars the same"
+                }
+              } 
+            }
             if (arrwithstrs[x].trim().substr("Stars:", arrwithstrs[x].length).trim().length > 0)
               ObjectForSend.stars = stararr;
             else
@@ -739,7 +752,7 @@ function UploadFilmPage(props) {
       Stars.length === 0) {
       return alert('Fill all the fields first!')
     }
-    if ((new Date()).getFullYear() >= Year && Year <= 1850) {
+    if ((new Date()).getFullYear() < parseInt(Year) || parseInt(Year) < 1850) {
       return alert('Year isn`t correct')
     }
     if (Title.trim().match(regex)) {
@@ -769,8 +782,9 @@ function UploadFilmPage(props) {
   const [StarInput, setStarInput] = useState("")
   const [Important, setImportant] = useState(false)
   const addStarToArr = () => {
-
-    if (StarInput.trim().match(regex))
+    if(Stars.indexOf(StarInput.trim()) !== -1)
+      alert("This star exist");
+    else if (StarInput.trim().match(regex))
       alert("Star has bad chars somewhere");
     else if (StarInput.trim().length > 0)
       setStars([...Stars, StarInput.trim()])
@@ -874,14 +888,14 @@ function FilmPage(props) {
     setStarInput("");
   }, [Film])
   const addStarToArr = () => {
-    if (StarInput.trim().length > 0 && !StarInput.trim().match(regex)) {
-      setStars([...Stars, StarInput.trim()])
-      return setStarInput("")
+    if(Stars.indexOf(StarInput.trim()) !== -1)
+    alert("This star exist");
+  else if (StarInput.trim().match(regex))
+    alert("Star has bad chars somewhere");
+  else if (StarInput.trim().length > 0)
+    setStars([...Stars, StarInput.trim()])
+  setStarInput("")
 
-
-    }
-    setStarInput("")
-    return alert("Star has bad chars somewhere or empty");
   }
   const updatePage = () => {
     let variables = {
@@ -913,7 +927,7 @@ function FilmPage(props) {
       Stars.length === 0) {
       return alert('Fill all the fields first!')
     }
-    if ((new Date()).getFullYear() >= Year && Year <= 1850) {
+    if  ((new Date()).getFullYear() < parseInt(Year) || parseInt(Year) < 1850) {
       return alert('Year isn`t correct')
     }
     if (Title.trim().match(regex)) {
@@ -937,6 +951,7 @@ function FilmPage(props) {
     return newStars
   }
   const onDelete = () => {
+    if(window.confirm("Are you sure?"))
     axios.delete(`${FILM_SERVER}/delete/film/${filmId}`)
       .then(response => {
         alert(response.data.message)
@@ -1027,6 +1042,7 @@ function SettingsPage(props) {
   const [FilmsInput, setFilmsInput] = useState("")
 
   const rmrfFilm = (idid) => {
+    if(window.confirm("Are you sure?"))
     axios.delete(`${FILM_SERVER}/delete/film/${idid}`).then(response => {
       if (response.data.success) {
         alert(response.data.message)
@@ -1052,6 +1068,7 @@ function SettingsPage(props) {
 
   }
   const deleteAccount = () => {
+    if(window.confirm("Are you sure?"))
     axios.delete(`${USER_SERVER}/delete/acc`).then(response => {
       if (response.data.success) {
         alert(response.data.message)
@@ -1064,7 +1081,7 @@ function SettingsPage(props) {
   }
   useEffect(() => {
     getUserFilms()
-  }, [redux, FilmsInput, getUserFilms])
+  }, [redux, FilmsInput])
 
   return (
 
@@ -1168,6 +1185,7 @@ function SettingsPage(props) {
                   X
   </button>
               </div>)}
+             
             </div>
           </div>
         );

@@ -794,3 +794,35 @@ input[type=number]::-webkit-inner-spin-button {
   color: var(--main-color);
   border: 2px solid var(--main-color);
 }
+
+
+.no_movies_found{
+  display: grid;
+  margin-top: 50px;
+  row-gap: 20px;
+  justify-items: center;
+}
+
+.no_movies_found_title{
+  text-transform: uppercase;
+  font-size: 24px;
+}
+
+.no_movies_found a:hover{
+  background-color: white;
+  color: var(--main-color);
+}
+
+.no_movies_found a{
+  border: 2px solid var(--main-color);
+  font-size: 24px;
+  color: white;
+  background-color: var(--main-color);
+  height: 50px;
+  width: 100%;
+  text-transform: uppercase;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  max-width: 300px;
+}
