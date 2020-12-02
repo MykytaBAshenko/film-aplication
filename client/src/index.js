@@ -555,6 +555,8 @@ function LandingPage(props) {
 
     }
     getFilms(variables)
+    setSkip(0)
+
 }, [redux])
 
   const onShowOnlyMine = () => {
@@ -570,6 +572,8 @@ function LandingPage(props) {
     }
     getFilms(variables)
     setShowOnlyMine(!ShowOnlyMine)
+    setSkip(0)
+
   }
 
   const onSorting = () => {
@@ -591,6 +595,7 @@ function LandingPage(props) {
 
     }
     getFilms(variables)
+    setSkip(0)
     setSortByName(sortingby)
   }
 
@@ -607,6 +612,8 @@ function LandingPage(props) {
     }
     getFilms(variables)
     setShowStar(star)
+    setSkip(0)
+
   }
   const onTitleChange = (title) => {
     const variables = {
@@ -621,6 +628,8 @@ function LandingPage(props) {
     }
     getFilms(variables)
     setShowName(title)
+    setSkip(0)
+
   }
   const onLoadMore = () => {
     let skip = Skip+Limit
@@ -637,6 +646,7 @@ function LandingPage(props) {
     setSkip(skip)
   }
   const getFilms = (vars) => {
+    console.log(vars)
     axios.post(`${FILM_SERVER}/films`, vars)
     .then(response => {
         if(response.data.LoadMore)

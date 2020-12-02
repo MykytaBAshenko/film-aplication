@@ -270,18 +270,18 @@ filmRouter.post("/films", auth, (req, res) => {
     .exec((err, films) => {
       if (sortBy == "title" && order == "asc") {
         films.sort((a, b) =>
-          a.title.toUpperCase() > b.title.toUpperCase()
+          a.title.toLowerCase() > b.title.toLowerCase()
             ? 1
-            : a.title.toUpperCase() === b.title.toUpperCase()
+            : a.title.toLowerCase() === b.title.toLowerCase()
             ? 0
             : -1
         );
       }
       if (sortBy == "title" && order == "desc") {
         films.sort((a, b) =>
-          a.title.toUpperCase() > b.title.toUpperCase()
+          a.title.toLowerCase() > b.title.toLowerCase()
             ? -1
-            : a.title.toUpperCase() === b.title.toUpperCase()
+            : a.title.toLowerCase() === b.title.toLowerCase()
             ? 0
             : 1
         );
