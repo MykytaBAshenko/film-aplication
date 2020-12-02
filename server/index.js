@@ -254,7 +254,6 @@ filmRouter.post("/films",auth, (req, res) => {
         order = "desc"
     }
     let find_args = {}
-    console.log(req.body)
     if(req.body.OnlyMine)
         find_args.writer = req.user._id
     if(req.body.Title)
