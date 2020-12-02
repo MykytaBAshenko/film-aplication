@@ -646,7 +646,6 @@ function LandingPage(props) {
     setSkip(skip)
   }
   const getFilms = (vars) => {
-    console.log(vars)
     axios.post(`${FILM_SERVER}/films`, vars)
     .then(response => {
         if(response.data.LoadMore)
