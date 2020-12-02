@@ -233,6 +233,15 @@ filmRouter.post("/update/film/:id", auth, async (req, res) => {
   });
 });
 
+
+filmRouter.post("/my/films",auth, (req, res) => {
+    Film.find({writer: req.user._id}).populate("writer").exec((err, films) => {
+        if (err) return res.status(400).json({ success: false, err })
+        res.status(200).json({ success: true, films })
+    })
+});
+
+
 filmRouter.post("/films",auth, (req, res) => {
     let sortBy = "_id"
     let order = "asc"

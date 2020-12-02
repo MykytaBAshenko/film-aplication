@@ -532,96 +532,19 @@ const TypesOfFilm = [
 ];
 
 function LandingPage(props) {
-  // const [FilmsFromServer, setFilmsFromServer] = useState([]);
-  // const [ShowFilms, setShowFilms] = useState([]);
-  // const [ShowStar, setShowStar] = useState("");
-  // const [ShowName, setShowName] = useState("");
-  // const [SortByName, setSortByName] = useState(0);
-  // const [ShowOnlyMine, setShowOnlyMine] = useState(false);
   let redux = useSelector((state) => state.redux);
-  // const UserId = redux?.userData?._id;
-
-  // useEffect(() => {
-  //   getFilms();
-  // }, [ShowOnlyMine, SortByName,ShowStar,ShowName]);
-
-  // useEffect(() => {
-  //   let newShowArray = JSON.parse(JSON.stringify(FilmsFromServer));
-  //   if (ShowName) {
-  //     newShowArray = newShowArray.filter(function (elem) {
-  //       return elem.title.toLowerCase().indexOf(ShowName.toLowerCase()) != -1;
-  //     });
-  //   }
-  //   if (ShowStar) {
-  //     let ChangeShowArray = [];
-  //     for (let elm = 0; elm < newShowArray.length; elm++) {
-  //       let l = 0;
-  //       for (let ooo = 0; ooo < newShowArray[elm].stars.length; ooo++) {
-  //         if (
-  //           newShowArray[elm].stars[ooo]
-  //             .toLowerCase()
-  //             .indexOf(ShowStar.toLowerCase()) != -1
-  //         )
-  //           l = 1;
-  //       }
-  //       if (l === 1) ChangeShowArray.push(newShowArray[elm]);
-  //     }
-  //     newShowArray = ChangeShowArray;
-  //   }
-  //   if (ShowOnlyMine) {
-  //     let ChangeShowArray = [];
-  //     for (let elm = 0; elm < newShowArray.length; elm++) {
-  //       if (newShowArray[elm].writer._id === UserId)
-  //         ChangeShowArray.push(newShowArray[elm]);
-  //     }
-  //     newShowArray = ChangeShowArray;
-  //   }
-  //   if (SortByName === 1) {
-  //     newShowArray.sort((a, b) =>
-  //       a.title.toUpperCase() > b.title.toUpperCase()
-  //         ? 1
-  //         : a.title.toUpperCase() === b.title.toUpperCase()
-  //         ? 0
-  //         : -1
-  //     );
-  //   }
-
-  //   if (SortByName === -1) {
-  //     newShowArray.sort((a, b) =>
-  //       a.title.toUpperCase() > b.title.toUpperCase()
-  //         ? -1
-  //         : a.title.toUpperCase() === b.title.toUpperCase()
-  //         ? 0
-  //         : 1
-  //     );
-  //   }
-
-  //   setShowFilms(newShowArray);
-  // }, [redux, ShowOnlyMine, SortByName, ShowName, ShowStar]);
-
-  // const getFilms = () => {
-  //   axios.post(`${FILM_SERVER}/films`).then((response) => {
-  //     setFilmsFromServer(response.data.films);
-  //     setShowFilms(response.data.films);
-  //   });
-  // };
-
-  // const setSorting = () => {
-  //   if (SortByName === 0) {
-  //     setSortByName(1);
-  //   } else if (SortByName === 1) {
-  //     setSortByName(-1);
-  //   } else setSortByName(0);
-  // };
+ 
   const [ShowFilms, setShowFilms] = useState([])
   const [Skip, setSkip] = useState(0)
-  const [Limit, setLimit] = useState(10)
+  const [Limit, setLimit] = useState(18)
   const [PostSize,setPostSize] =useState(0)
 
   const [ShowOnlyMine, setShowOnlyMine] = useState(false)
   const [SortByName,setSortByName] =useState(0)
   const [ShowStar,setShowStar] =useState("")
   const [ShowName,setShowName] =useState("")
+
+
 
   useEffect(() => {
 
@@ -924,7 +847,6 @@ function FileUpload(props) {
     reader.onload = async (e) => {
       setInnerFile(e.target.result);
     };
-
     reader.readAsText(files[0]);
   };
 
@@ -1253,7 +1175,7 @@ function SettingsPage(props) {
 
   const getUserFilms = () => {
     if (redux?.userData?._id) {
-      axios.post(`${FILM_SERVER}/films`).then((res) => {
+      axios.post(`${FILM_SERVER}/my/films`).then((res) => {
         let films = res.data.films.filter(
           (film) => film.writer._id === redux.userData._id
         );
