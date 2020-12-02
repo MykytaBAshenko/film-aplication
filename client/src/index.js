@@ -639,13 +639,10 @@ function LandingPage(props) {
   const getFilms = (vars) => {
     axios.post(`${FILM_SERVER}/films`, vars)
     .then(response => {
-
-        console.log(response.data)
         if(response.data.LoadMore)
         setShowFilms([...ShowFilms, ...response.data.films]);
         else{
           setShowFilms([ ...response.data.films]);
-          
         }
         setPostSize(response.data.films_length)
     })
@@ -685,7 +682,6 @@ function LandingPage(props) {
                 <li key={starindex + "_" + index}>{star}</li>
               ))}
             </ul>
-            {console.log(film?.writer?._id , redux?.userData?._id)}
             {film?.writer?._id == redux?.userData?._id && (
               <div className="editBtnBlock">
                 <Link className="filmCardEdit" to={"/film/" + film._id}>
