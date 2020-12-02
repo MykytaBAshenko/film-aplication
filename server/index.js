@@ -142,7 +142,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-
 filmRouter.post("/upload/films", auth, (req, res) => {
   let all_ok = true;
   for (let yy = 0; yy < req.body.length; yy++) {
@@ -151,21 +150,24 @@ filmRouter.post("/upload/films", auth, (req, res) => {
       format: { $in: req.body[yy].format },
     }).exec((err, films) => {
       for (let ii = 0; ii < films.length; ii++)
-        if (JSON.stringify(films[ii].stars) == JSON.stringify(req.body[yy].stars) && parseInt(films[ii].year) === parseInt(req.body[yy].year))
+        if (
+          JSON.stringify(films[ii].stars) ==
+            JSON.stringify(req.body[yy].stars) &&
+          parseInt(films[ii].year) === parseInt(req.body[yy].year)
+        )
           all_ok = false;
       if (yy == req.body.length - 1) {
         if (all_ok) {
-            for (let j = 0; j < req.body.length; j++)
-                req.body[j].writer = mongoose.Types.ObjectId(req.body[j].writer);
-            Film.collection.insert(req.body, function (err, docs) {
-                if (err) {
-                return res.json(err);
-                } else {
-                return res.json("Films added!");
-                }
-            });
-        }
-        else return res.json("Non-unique film is present");
+          for (let j = 0; j < req.body.length; j++)
+            req.body[j].writer = mongoose.Types.ObjectId(req.body[j].writer);
+          Film.collection.insert(req.body, function (err, docs) {
+            if (err) {
+              return res.json(err);
+            } else {
+              return res.json("Films added!");
+            }
+          });
+        } else return res.json("Non-unique film is present");
       }
     });
   }
@@ -180,7 +182,10 @@ filmRouter.post("/upload/film", auth, (req, res) => {
   }).exec((err, films) => {
     let all_ok = true;
     for (let ii = 0; ii < films.length; ii++)
-      if (JSON.stringify(films[ii].stars) == JSON.stringify(req.body.stars) && parseInt(req.body.year) === films[ii].year)
+      if (
+        JSON.stringify(films[ii].stars) == JSON.stringify(req.body.stars) &&
+        parseInt(req.body.year) === films[ii].year
+      )
         all_ok = false;
     if (all_ok)
       new_film.save((err) => {
@@ -196,12 +201,15 @@ filmRouter.post("/upload/film", auth, (req, res) => {
 
 filmRouter.post("/update/film/:id", auth, async (req, res) => {
   Film.find({
-    title:  req.body.title,
-    format:req.body.format
+    title: req.body.title,
+    format: req.body.format,
   }).exec((err, films) => {
     let all_ok = true;
     for (let ii = 0; ii < films.length; ii++)
-      if (JSON.stringify(films[ii].stars) == JSON.stringify(req.body.stars) && parseInt(req.body.year) === films[ii].year)
+      if (
+        JSON.stringify(films[ii].stars) == JSON.stringify(req.body.stars) &&
+        parseInt(req.body.year) === films[ii].year
+      )
         all_ok = false;
     if (all_ok)
       Film.findById(req.body._id)
@@ -233,76 +241,83 @@ filmRouter.post("/update/film/:id", auth, async (req, res) => {
   });
 });
 
-
-filmRouter.post("/my/films",auth, (req, res) => {
-    Film.find({writer: req.user._id}).populate("writer").exec((err, films) => {
-        if (err) return res.status(400).json({ success: false, err })
-        res.status(200).json({ success: true, films })
-    })
+filmRouter.post("/my/films", auth, (req, res) => {
+  Film.find({ writer: req.user._id })
+    .populate("writer")
+    .exec((err, films) => {
+      if (err) return res.status(400).json({ success: false, err });
+      res.status(200).json({ success: true, films });
+    });
 });
 
-
-filmRouter.post("/films",auth, (req, res) => {
-    let sortBy = "_id"
-    let order = "asc"
-    if(req.body.SortBy == 1) {
-        sortBy = "title"
-        order = "asc"
-    }
-    if(req.body.SortBy == -1) {
-        sortBy = "title"
-        order = "desc"
-    }
-    let find_args = {}
-    if(req.body.OnlyMine)
-        find_args.writer = req.user._id
-    if(req.body.Title)
-        find_args.title = { "$regex": req.body.Title, "$options": "i" }
+filmRouter.post("/films", auth, (req, res) => {
+  let sortBy = "_id";
+  let order = "asc";
+  if (req.body.SortBy == 1) {
+    sortBy = "title";
+    order = "asc";
+  }
+  if (req.body.SortBy == -1) {
+    sortBy = "title";
+    order = "desc";
+  }
+  let find_args = {};
+  if (req.body.OnlyMine) find_args.writer = req.user._id;
+  if (req.body.Title)
+    find_args.title = { $regex: req.body.Title, $options: "i" };
   Film.find(find_args)
     .populate("writer")
     .exec((err, films) => {
-        if(sortBy == "title" && order == "asc"){
-            films.sort((a, b) =>
-                  a.title.toUpperCase() > b.title.toUpperCase()
-                    ? 1
-                    : a.title.toUpperCase() === b.title.toUpperCase()
-                    ? 0
-                    : -1
-                );
-            }
-        if(sortBy == "title" && order == "desc"){
+      if (sortBy == "title" && order == "asc") {
         films.sort((a, b) =>
-              a.title.toUpperCase() > b.title.toUpperCase()
-                ? -1
-                : a.title.toUpperCase() === b.title.toUpperCase()
-                ? 0
-                : 1
-            );
+          a.title.toUpperCase() > b.title.toUpperCase()
+            ? 1
+            : a.title.toUpperCase() === b.title.toUpperCase()
+            ? 0
+            : -1
+        );
+      }
+      if (sortBy == "title" && order == "desc") {
+        films.sort((a, b) =>
+          a.title.toUpperCase() > b.title.toUpperCase()
+            ? -1
+            : a.title.toUpperCase() === b.title.toUpperCase()
+            ? 0
+            : 1
+        );
+      }
+      let filtered_on_stars = [];
+      if (req.body.Star) {
+        for (let oo = 0; oo < films.length; oo++) {
+          let gg = false;
+          for (let yy = 0; yy < films[oo].stars.length; yy++) {
+            if (
+              films[oo].stars[yy]
+                .toLowerCase()
+                .indexOf(req.body.Star.toLowerCase()) != -1
+            )
+              gg = true;
+          }
+          if (gg) filtered_on_stars.push(films[oo]);
         }
-        let filtered_on_stars = []
-        if(req.body.Star){
-            for(let oo = 0; oo < films.length; oo++){
-                let gg = false
-                for(let yy = 0; yy < films[oo].stars.length;yy++){
-                    if(films[oo].stars[yy].toLowerCase().indexOf(req.body.Star.toLowerCase() )!=-1)
-                        gg = true
-                }
-                if(gg)
-                    filtered_on_stars.push(films[oo])
-            }
-        }else{
-            filtered_on_stars = films
-        }
-        let films_length = filtered_on_stars.length
-        let send_array = []
-        for(let j = req.body.skip; j <req.body.skip+req.body.Limit;j++){
-            if(filtered_on_stars[j])
-                send_array.push(filtered_on_stars[j])
-            else
-                break
-        }
+      } else {
+        filtered_on_stars = films;
+      }
+      let films_length = filtered_on_stars.length;
+      let send_array = [];
+      for (let j = req.body.skip; j < req.body.skip + req.body.Limit; j++) {
+        if (filtered_on_stars[j]) send_array.push(filtered_on_stars[j]);
+        else break;
+      }
       if (err) return res.status(400).json({ success: false, err });
-      res.status(200).json({ success: true, films: send_array,films_length,LoadMore:req.body.LoadMore });
+      res
+        .status(200)
+        .json({
+          success: true,
+          films: send_array,
+          films_length,
+          LoadMore: req.body.LoadMore,
+        });
     });
 });
 
